@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}{{ birthday.name }} - 提醒配置{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>🔔 {{ birthday.name }} 的提醒配置</h2>
+
+    {% if success %}
+    <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 6px; margin-bottom: 20px;">
+        ✅ 提醒配置已保存
+    </div>
+    {% endif %}
+
+    <form method="post">
+        <table>
+            <thead>
+                <tr>
+                    <th>提醒时机</th>
+                    <th>发送时间</th>
+                    <th>自定义模板</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for preset in presets %}
+                <tr>
+                    <td>
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox"
+                                   name="reminder_{{ preset.days_before }}"
+                                   id="reminder_{{ preset.days_before }}"
+                                   {% if preset.days_before in [0, 7] %}checked{% endif %}>
+                            {{ preset.label }}
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               name="cron_{{ preset.days_before }}"
+                               value="{{ preset.cron_time }}"
+                               placeholder="0 9 * * *"
+                               style="width: 120px;">
+                        <small style="color: #666;">分 时 日 月 周</small>
+                    </td>
+                    <td>
+                        <input type="text"
+                               name="template_{{ preset.days_before }}"
+                               placeholder="可选，自定义模板"
+                               style="width: 300px;">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="mt-2">
+            <button type="submit" class="btn btn-primary">保存配置</button>
+            <a href="/birthdays" class="btn btn-secondary">返回列表</a>
+        </div>
+    </form>
+
+    <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+        <h4>📖 Cron 表达式说明</h4>
+        <ul style="margin-left: 20px; color: #666; line-height: 1.8;">
+            <li><code>0 9 * * *</code> - 每天早上9点</li>
+            <li><code>0 9 * * 1</code> - 每周一早上9点</li>
+            <li><code>30 8 * * *</code> - 每天早上8:30</li>
+            <li><code>0 18 * * *</code> - 每天下午6点</li>
+        </ul>
+
+        <h4 style="margin-top: 15px;">📝 模板变量</h4>
+        <ul style="margin-left: 20px; color: #666; line-height: 1.8;">
+            <li><code>{{ "{{name}}" }}</code> - 生日对象姓名</li>
+            <li><code>{{ "{{date}}" }}</code> - 生日日期</li>
+            <li><code>{{ "{{age}}" }}</code> - 年龄</li>
+            <li><code>{{ "{{days_left}}" }}</code> - 距离生日天数</li>
+            <li><code>{{ "{{gift_idea}}" }}</code> - 礼物建议</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

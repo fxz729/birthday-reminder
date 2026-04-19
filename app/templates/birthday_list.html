@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}生日列表 - 生日定时提醒{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>📅 生日列表</h2>
+        <a href="/birthdays/add" class="btn btn-primary">+ 添加生日</a>
+    </div>
+
+    {% if birthdays %}
+    <table>
+        <thead>
+            <tr>
+                <th>姓名</th>
+                <th>生日日期</th>
+                <th>类型</th>
+                <th>提醒邮箱</th>
+                <th>礼物建议</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in birthdays %}
+            <tr>
+                <td>{{ b.name }}</td>
+                <td>{{ b.birth_date }}</td>
+                <td>
+                    {% if b.is_lunar %}
+                    <span class="badge badge-lunar">农历</span>
+                    {% else %}
+                    <span class="badge badge-solar">公历</span>
+                    {% endif %}
+                </td>
+                <td>{{ b.email }}</td>
+                <td>{{ b.gift_idea or '-' }}</td>
+                <td>
+                    <a href="/birthdays/{{ b.id }}/edit" class="btn btn-secondary btn-sm">编辑</a>
+                    <a href="/birthdays/{{ b.id }}/reminders" class="btn btn-primary btn-sm">提醒</a>
+                    <form action="/birthdays/{{ b.id }}/delete" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定删除？')">删除</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-center" style="color: #666; padding: 40px;">暂无生日数据，<a href="/birthdays/add">添加一个</a></p>
+    {% endif %}
+</div>
+{% endblock %}

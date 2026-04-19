@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{% if birthday %}编辑{% else %}添加{% endif %}生日 - 生日定时提醒{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>{% if birthday %}📝 编辑生日{% else %}➕ 添加生日{% endif %}</h2>
+
+    {% if errors %}
+    <div style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 6px; margin-bottom: 20px;">
+        {{ errors }}
+    </div>
+    {% endif %}
+
+    <form method="post">
+        <div class="form-group">
+            <label for="name">姓名 *</label>
+            <input type="text" id="name" name="name" value="{{ birthday.name or '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="birth_date">生日日期 * (YYYY-MM-DD)</label>
+            <input type="date" id="birth_date" name="birth_date" value="{{ birthday.birth_date or '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="is_lunar" {% if birthday and birthday.is_lunar %}checked{% endif %}>
+                农历生日
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label for="email">提醒邮箱 *</label>
+            <input type="email" id="email" name="email" value="{{ birthday.email or '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="gift_idea">礼物建议</label>
+            <textarea id="gift_idea" name="gift_idea" rows="2">{{ birthday.gift_idea or '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="notes">备注</label>
+            <textarea id="notes" name="notes" rows="2">{{ birthday.notes or '' }}</textarea>
+        </div>
+
+        <div class="mt-2">
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a href="/birthdays" class="btn btn-secondary">取消</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
