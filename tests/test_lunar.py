@@ -8,7 +8,11 @@ from app.services.lunar import (
     get_lunar_date_string,
     month_to_chinese,
     day_to_chinese,
-    get_upcoming_birthday_date
+    get_upcoming_birthday_date,
+    get_date_info,
+    get_birthday_info,
+    get_zodiac,
+    get_constellation
 )
 
 
@@ -105,3 +109,71 @@ def test_get_upcoming_birthday_date_lunar():
     birth = date(1990, 5, 15)
     result = get_upcoming_birthday_date(birth, is_lunar=True, target_year=2026)
     assert result is not None
+
+
+def test_get_date_info():
+    """测试获取丰富日期信息"""
+    # 2024-04-21 是清明节后，测试节气信息
+    info = get_date_info(date(2024, 4, 21))
+    assert "gz_year" in info
+    assert "gz_month" in info
+    assert "gz_day" in info
+    assert "gz_hour" in info
+    assert "lunar_month" in info
+    assert "lunar_day" in info
+    assert "zodiac" in info
+    assert "constellation" in info
+    assert "week_name" in info
+    assert isinstance(info["gz_year"], str)
+    assert len(info["gz_year"]) >= 2  # 干支至少2个字符
+
+
+def test_get_birthday_info():
+    """测试获取生日信息"""
+    # 阳历生日
+    birth_date = date(1990, 7, 15)
+    info = get_birthday_info(birth_date, is_lunar=False)
+    assert "solar_match" in info
+    assert "lunar_match" in info
+    assert "days_until" in info
+    assert "age" in info
+    assert "zodiac" in info
+    assert info["solar_match"] == False  # 今天不是 7月15日
+    assert info["lunar_match"] == False
+
+
+def test_get_birthday_info_today():
+    """测试今天生日的情况"""
+    today = date.today()
+    birth_date = date(1990, today.month, today.day)
+    info = get_birthday_info(birth_date, is_lunar=False, check_date=today)
+    assert info["solar_match"] == True
+    assert info["days_until"] == 0
+
+
+def test_get_zodiac():
+    """测试获取生肖"""
+    # 测试任意日期能获取到生肖
+    zodiac = get_zodiac(date(2024, 1, 1))
+    assert zodiac is not None
+    assert isinstance(zodiac, str)
+    assert len(zodiac) >= 1
+
+
+def test_get_constellation():
+    """测试获取星座"""
+    # 7月15日应该是巨蟹座
+    constellation = get_constellation(date(2024, 7, 15))
+    assert constellation is not None
+    assert isinstance(constellation, str)
+    # 7月15日应该是巨蟹座
+    assert "巨蟹" in constellation or "狮子" in constellation
+
+
+def test_date_info_contains_festivals():
+    """测试节日信息"""
+    # 2024-02-10 是春节
+    info = get_date_info(date(2024, 2, 10))
+    # 春节应该有农历节日信息
+    if info["lunar_festival"]:
+        assert "春" in info["lunar_festival"] or "节" in info["lunar_festival"]

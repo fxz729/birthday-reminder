@@ -1,20 +1,24 @@
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from config import get_settings
 from typing import List
+from functools import lru_cache
 
-settings = get_settings()
 
-conf = ConnectionConfig(
-    MAIL_USERNAME=settings.mail_username,
-    MAIL_PASSWORD=settings.mail_password,
-    MAIL_FROM=settings.mail_from,
-    MAIL_PORT=settings.mail_port,
-    MAIL_SERVER=settings.mail_server,
-    MAIL_STARTTLS=settings.mail_starttls,
-    MAIL_SSL_TLS=settings.mail_ssl_tls,
-    USE_CREDENTIALS=settings.mail_use_credentials,
-    VALIDATE_CERTS=settings.mail_validate_certs
-)
+@lru_cache()
+def get_mail_config() -> ConnectionConfig:
+    """获取邮件配置（延迟初始化）"""
+    settings = get_settings()
+    return ConnectionConfig(
+        MAIL_USERNAME=settings.mail_username,
+        MAIL_PASSWORD=settings.mail_password,
+        MAIL_FROM=settings.mail_from,
+        MAIL_PORT=settings.mail_port,
+        MAIL_SERVER=settings.mail_server,
+        MAIL_STARTTLS=settings.mail_starttls,
+        MAIL_SSL_TLS=settings.mail_ssl_tls,
+        USE_CREDENTIALS=settings.mail_use_credentials,
+        VALIDATE_CERTS=settings.mail_validate_certs
+    )
 
 
 async def send_email(
@@ -23,6 +27,7 @@ async def send_email(
     html_body: str
 ) -> bool:
     """发送邮件"""
+    settings = get_settings()
     if not settings.mail_username or not settings.mail_password:
         print("邮件配置未设置，跳过发送")
         return False
@@ -34,6 +39,7 @@ async def send_email(
         subtype=MessageType.html
     )
 
+    conf = get_mail_config()
     fm = FastMail(conf)
     try:
         await fm.send_message(message)

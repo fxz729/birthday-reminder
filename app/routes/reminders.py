@@ -1,3 +1,6 @@
+"""
+提醒配置路由
+"""
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -8,6 +11,7 @@ from pathlib import Path
 from app.database import get_db
 from app import crud
 from app.schemas import ReminderCreate, ReminderResponse
+from config import get_settings
 
 router = APIRouter(prefix="/birthdays", tags=["reminders"])
 
@@ -32,6 +36,10 @@ async def reminder_config_page(request: Request, birthday_id: int, db: Session =
 
     reminders = crud.get_reminders_for_birthday(db, birthday_id)
 
+    # 检查 ServerChan 是否配置
+    settings = get_settings()
+    serverchan_enabled = bool(settings.serverchan_sckey)
+
     return templates.TemplateResponse(
         "reminder_form.html",
         {
@@ -39,7 +47,8 @@ async def reminder_config_page(request: Request, birthday_id: int, db: Session =
             "birthday": birthday,
             "reminders": reminders,
             "presets": DEFAULT_REMINDER_PRESETS,
-            "errors": None
+            "errors": None,
+            "serverchan_enabled": serverchan_enabled
         }
     )
 
@@ -61,14 +70,22 @@ async def update_reminders(request: Request, birthday_id: int, db: Session = Dep
     for preset in DEFAULT_REMINDER_PRESETS:
         key = f"reminder_{preset['days_before']}"
         if key in form_data:
+            # 获取通知类型
+            notify_type = form_data.get(f"notify_type_{preset['days_before']}", "email")
+
             reminder_data = ReminderCreate(
                 days_before=preset["days_before"],
                 cron_time=form_data.get(f"cron_{preset['days_before']}", preset["cron_time"]),
                 is_enabled=True,
-                template=form_data.get(f"template_{preset['days_before']}") or None
+                template=form_data.get(f"template_{preset['days_before']}") or None,
+                notification_type=notify_type
             )
             crud.create_reminder(db, birthday_id, reminder_data)
             new_reminders.append(reminder_data)
+
+    # 检查 ServerChan 是否配置
+    settings = get_settings()
+    serverchan_enabled = bool(settings.serverchan_sckey)
 
     return templates.TemplateResponse(
         "reminder_form.html",
@@ -78,7 +95,8 @@ async def update_reminders(request: Request, birthday_id: int, db: Session = Dep
             "reminders": new_reminders,
             "presets": DEFAULT_REMINDER_PRESETS,
             "errors": None,
-            "success": True
+            "success": True,
+            "serverchan_enabled": serverchan_enabled
         }
     )
 

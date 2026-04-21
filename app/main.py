@@ -6,7 +6,7 @@ from pathlib import Path
 import os
 
 from app.database import get_db, init_db
-from app.routes import birthdays, reminders
+from app.routes import birthdays, reminders, auth
 from config import get_settings
 
 settings = get_settings()
@@ -45,3 +45,4 @@ async def health_check():
 
 app.include_router(birthdays.router)
 app.include_router(reminders.router)
+app.include_router(auth.router)

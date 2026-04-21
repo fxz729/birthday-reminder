@@ -1,53 +1,119 @@
 {% extends "base.html" %}
 
-{% block title %}生日列表 - 生日定时提醒{% endblock %}
+{% block title %}生日列表{% endblock %}
 
 {% block content %}
 <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2>📅 生日列表</h2>
-        <a href="/birthdays/add" class="btn btn-primary">+ 添加生日</a>
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <h2 style="margin-bottom: 0;">
+            <span style="opacity: 0.8;">📅</span> 我的生日簿
+        </h2>
+        <a href="/birthdays/add" class="btn btn-primary">
+            <span>+</span> 添加新朋友
+        </a>
     </div>
+</div>
 
-    {% if birthdays %}
+{% if birthdays %}
+<div class="card" style="padding: 0; overflow: hidden;">
     <table>
         <thead>
             <tr>
-                <th>姓名</th>
-                <th>生日日期</th>
-                <th>类型</th>
-                <th>提醒邮箱</th>
-                <th>礼物建议</th>
-                <th>操作</th>
+                <th>👤 姓名</th>
+                <th>🎂 生日</th>
+                <th>📆 类型</th>
+                <th>📧 提醒邮箱</th>
+                <th>🎁 礼物想法</th>
+                <th>⚡ 操作</th>
             </tr>
         </thead>
         <tbody>
             {% for b in birthdays %}
             <tr>
-                <td>{{ b.name }}</td>
-                <td>{{ b.birth_date }}</td>
+                <td>
+                    <strong style="color: var(--plum);">{{ b.name }}</strong>
+                </td>
+                <td>
+                    <span style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem;">
+                        {{ b.birth_date }}
+                    </span>
+                </td>
                 <td>
                     {% if b.is_lunar %}
-                    <span class="badge badge-lunar">农历</span>
+                    <span class="badge badge-lunar">🌙 农历</span>
                     {% else %}
-                    <span class="badge badge-solar">公历</span>
+                    <span class="badge badge-solar">☀️ 公历</span>
                     {% endif %}
                 </td>
-                <td>{{ b.email }}</td>
-                <td>{{ b.gift_idea or '-' }}</td>
+                <td style="color: var(--text-muted); font-size: 0.9rem;">
+                    {{ b.email }}
+                </td>
                 <td>
-                    <a href="/birthdays/{{ b.id }}/edit" class="btn btn-secondary btn-sm">编辑</a>
-                    <a href="/birthdays/{{ b.id }}/reminders" class="btn btn-primary btn-sm">提醒</a>
-                    <form action="/birthdays/{{ b.id }}/delete" method="post" style="display: inline;">
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定删除？')">删除</button>
-                    </form>
+                    {% if b.gift_idea %}
+                    <span style="background: linear-gradient(135deg, #FFE8E8 0%, #FFF9F5 100%); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">
+                        {{ b.gift_idea[:30] }}{% if b.gift_idea|length > 30 %}...{% endif %}
+                    </span>
+                    {% else %}
+                    <span style="color: var(--text-muted); font-style: italic; font-size: 0.85rem;">
+                        暂无想法 💭
+                    </span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="/birthdays/{{ b.id }}/edit" class="btn btn-secondary btn-sm">编辑</a>
+                        <a href="/birthdays/{{ b.id }}/reminders" class="btn btn-primary btn-sm">提醒</a>
+                        <form action="/birthdays/{{ b.id }}/delete" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定删除这个生日吗？')">
+                                删除
+                            </button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    {% else %}
-    <p class="text-center" style="color: #666; padding: 40px;">暂无生日数据，<a href="/birthdays/add">添加一个</a></p>
-    {% endif %}
 </div>
+
+<!-- Statistics Summary -->
+<div class="stats-grid mt-4">
+    <div class="stat-card">
+        <h3>{{ birthdays|length }}</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">已记录生日</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ birthdays|selectattr('is_lunar')|list|length }}</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">农历生日</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ birthdays|selectattr('gift_idea')|list|length }}</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">有礼物想法</p>
+    </div>
+</div>
+
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <h3 style="margin-bottom: 1rem; color: var(--text-muted);">
+            还没有记录任何生日
+        </h3>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+            开始记录朋友和家人的生日，再也不会错过重要的日子啦！
+        </p>
+        <a href="/birthdays/add" class="btn btn-primary">
+            🎂 添加第一个生日
+        </a>
+    </div>
+</div>
+
+<!-- Decorative Card -->
+<div class="card" style="text-align: center; background: linear-gradient(135deg, #FFE8E8 0%, #FFF9F5 100%); border: 2px dashed var(--coral);">
+    <h3 style="color: var(--coral); margin-bottom: 1rem;">💡 小提示</h3>
+    <p style="color: var(--text-muted); line-height: 1.8;">
+        支持记录农历生日哦！农历生日会在每个农历日期到来时提醒您。<br>
+        还可以设置提前提醒天数，再也不会手忙脚乱啦～
+    </p>
+</div>
+{% endif %}
 {% endblock %}

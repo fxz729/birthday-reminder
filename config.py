@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     mail_use_credentials: bool = True
     mail_validate_certs: bool = True
 
+    # ServerChan 配置
+    serverchan_sckey: str = ""
+
     # 应用
     app_name: str = "生日定时提醒"
     debug: bool = False

@@ -1,54 +1,214 @@
 {% extends "base.html" %}
 
-{% block title %}{% if birthday %}编辑{% else %}添加{% endif %}生日 - 生日定时提醒{% endblock %}
+{% block title %}{% if birthday %}编辑{% else %}添加{% endif %}生日{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        max-width: 700px;
+        margin: 0 auto;
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-card h2 {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.8rem;
+        color: var(--plum);
+        margin-bottom: 2rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 0;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .type-toggle {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .type-option {
+        flex: 1;
+        padding: 1rem;
+        border: 2px solid rgba(255, 107, 107, 0.2);
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .type-option:hover {
+        border-color: var(--coral);
+        background: var(--coral-light);
+    }
+
+    .type-option.selected {
+        border-color: var(--coral);
+        background: linear-gradient(135deg, var(--coral-light) 0%, #FFF0F0 100%);
+    }
+
+    .type-option input {
+        display: none;
+    }
+
+    .type-option span {
+        font-size: 1.5rem;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .type-option small {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
+
+    textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: center;
+    }
+
+    .btn-group .btn {
+        min-width: 120px;
+    }
+
+    .btn-cancel {
+        background: white;
+        color: var(--text-muted);
+        border: 2px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-cancel:hover {
+        background: #f5f5f5;
+        color: var(--text-dark);
+    }
+
+    .form-decoration {
+        position: absolute;
+        font-size: 6rem;
+        opacity: 0.05;
+        pointer-events: none;
+    }
+
+    .deco-1 { top: 10%; right: 5%; }
+    .deco-2 { bottom: 10%; left: 5%; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>{% if birthday %}📝 编辑生日{% else %}➕ 添加生日{% endif %}</h2>
+<div class="card form-card" style="position: relative; overflow: hidden;">
+    <span class="form-decoration deco-1">🎂</span>
+    <span class="form-decoration deco-2">🎁</span>
+
+    <h2>
+        {% if birthday %}
+        ✏️ 编辑生日信息
+        {% else %}
+        🎂 添加新生日
+        {% endif %}
+    </h2>
 
     {% if errors %}
-    <div style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 6px; margin-bottom: 20px;">
+    <div style="background: linear-gradient(135deg, #FFE8E8 0%, #FFF0F0 100%); color: var(--coral); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid rgba(255, 107, 107, 0.2);">
         {{ errors }}
     </div>
     {% endif %}
 
-    <form method="post">
-        <div class="form-group">
-            <label for="name">姓名 *</label>
-            <input type="text" id="name" name="name" value="{{ birthday.name or '' }}" required>
+    <form method="POST" action="">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="name">姓名 *</label>
+                <input type="text" id="name" name="name" required placeholder="输入姓名"
+                       value="{{ birthday.name if birthday else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="birth_date">生日日期 *</label>
+                <input type="date" id="birth_date" name="birth_date" required
+                       value="{{ birthday.birth_date if birthday else '' }}">
+            </div>
+
+            <div class="form-group full-width">
+                <label>生日类型 *</label>
+                <div class="type-toggle">
+                    <label class="type-option {% if not birthday or not birthday.is_lunar %}selected{% endif %}">
+                        <input type="radio" name="is_lunar" value="false"
+                               {% if not birthday or not birthday.is_lunar %}checked{% endif %}>
+                        <span>☀️</span>
+                        <small>公历生日</small>
+                    </label>
+                    <label class="type-option {% if birthday and birthday.is_lunar %}selected{% endif %}">
+                        <input type="radio" name="is_lunar" value="true"
+                               {% if birthday and birthday.is_lunar %}checked{% endif %}>
+                        <span>🌙</span>
+                        <small>农历生日</small>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="email">提醒邮箱 *</label>
+                <input type="email" id="email" name="email" required
+                       placeholder="接收生日提醒的邮箱地址"
+                       value="{{ birthday.email if birthday else '' }}">
+            </div>
+
+            <div class="form-group full-width">
+                <label for="gift_idea">🎁 礼物想法</label>
+                <textarea id="gift_idea" name="gift_idea"
+                          placeholder="记录一些礼物想法，以后参考">{{ birthday.gift_idea if birthday and birthday.gift_idea else '' }}</textarea>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="notes">📝 备注</label>
+                <textarea id="notes" name="notes"
+                          placeholder="其他备注信息">{{ birthday.notes if birthday and birthday.notes else '' }}</textarea>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="birth_date">生日日期 * (YYYY-MM-DD)</label>
-            <input type="date" id="birth_date" name="birth_date" value="{{ birthday.birth_date or '' }}" required>
-        </div>
-
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="is_lunar" {% if birthday and birthday.is_lunar %}checked{% endif %}>
-                农历生日
-            </label>
-        </div>
-
-        <div class="form-group">
-            <label for="email">提醒邮箱 *</label>
-            <input type="email" id="email" name="email" value="{{ birthday.email or '' }}" required>
-        </div>
-
-        <div class="form-group">
-            <label for="gift_idea">礼物建议</label>
-            <textarea id="gift_idea" name="gift_idea" rows="2">{{ birthday.gift_idea or '' }}</textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="notes">备注</label>
-            <textarea id="notes" name="notes" rows="2">{{ birthday.notes or '' }}</textarea>
-        </div>
-
-        <div class="mt-2">
-            <button type="submit" class="btn btn-primary">保存</button>
-            <a href="/birthdays" class="btn btn-secondary">取消</a>
+        <div class="btn-group">
+            <a href="/birthdays" class="btn btn-cancel">取消</a>
+            <button type="submit" class="btn btn-primary">
+                {% if birthday %}保存修改{% else %}添加生日{% endif %}
+            </button>
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Type toggle visual feedback
+    document.querySelectorAll('.type-option').forEach(option => {
+        option.addEventListener('click', () => {
+            document.querySelectorAll('.type-option').forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+        });
+    });
+</script>
 {% endblock %}

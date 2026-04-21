@@ -9,6 +9,7 @@ class ReminderBase(BaseModel):
     cron_time: str = "0 9 * * *"
     is_enabled: bool = True
     template: Optional[str] = None
+    notification_type: str = Field(default="email", pattern="^(email|serverchan)$")
 
 
 class ReminderCreate(ReminderBase):

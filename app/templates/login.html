@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}登录{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 24px;
+        padding: 3rem;
+        width: 100%;
+        max-width: 420px;
+        box-shadow: 0 20px 60px rgba(255, 107, 107, 0.2);
+        position: relative;
+        overflow: hidden;
+        animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .auth-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, var(--coral), var(--peach), var(--gold));
+    }
+
+    .auth-card h2 {
+        text-align: center;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2rem;
+        color: var(--plum);
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-card .subtitle {
+        text-align: center;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid rgba(255, 107, 107, 0.15);
+        border-radius: 12px;
+        font-family: 'Quicksand', sans-serif;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--coral);
+        box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, var(--coral) 0%, var(--peach) 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 107, 107, 0.1);
+        color: var(--text-muted);
+    }
+
+    .auth-footer a {
+        color: var(--coral);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .error-message {
+        background: linear-gradient(135deg, #FFE8E8 0%, #FFF0F0 100%);
+        color: var(--coral);
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-size: 0.9rem;
+        border: 1px solid rgba(255, 107, 107, 0.2);
+    }
+
+    /* Decorative elements */
+    .decorative {
+        position: absolute;
+        opacity: 0.1;
+        font-size: 8rem;
+        z-index: 0;
+    }
+
+    .decorative-1 { top: -2rem; right: -2rem; }
+    .decorative-2 { bottom: -2rem; left: -2rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <span class="decorative decorative-1">✨</span>
+        <span class="decorative decorative-2">🎂</span>
+
+        <h2>欢迎回来</h2>
+        <p class="subtitle">登录您的生日提醒账户</p>
+
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/auth/login">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" required placeholder="请输入用户名" autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required placeholder="请输入密码" autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="btn-submit">
+                登 录
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            还没有账号？<a href="/auth/register">立即注册</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -17,6 +17,7 @@
             <thead>
                 <tr>
                     <th>提醒时机</th>
+                    <th>通知方式</th>
                     <th>发送时间</th>
                     <th>自定义模板</th>
                 </tr>
@@ -32,6 +33,14 @@
                                    {% if preset.days_before in [0, 7] %}checked{% endif %}>
                             {{ preset.label }}
                         </label>
+                    </td>
+                    <td>
+                        <select name="notify_type_{{ preset.days_before }}" style="width: 140px; padding: 6px;">
+                            <option value="email" {% if preset.days_before in [0, 7] %}selected{% endif %}>📧 邮件</option>
+                            {% if serverchan_enabled %}
+                            <option value="serverchan">📱 ServerChan</option>
+                            {% endif %}
+                        </select>
                     </td>
                     <td>
                         <input type="text"
@@ -73,6 +82,14 @@
             <li><code>{{ "{{date}}" }}</code> - 生日日期</li>
             <li><code>{{ "{{age}}" }}</code> - 年龄</li>
             <li><code>{{ "{{days_left}}" }}</code> - 距离生日天数</li>
+            <li><code>{{ "{{zodiac}}" }}</code> - 生肖</li>
+            <li><code>{{ "{{constellation}}" }}</code> - 星座</li>
+            <li><code>{{ "{{gz_year}}" }}</code> - 干支纪年</li>
+            <li><code>{{ "{{gz_month}}" }}</code> - 干支纪月</li>
+            <li><code>{{ "{{gz_day}}" }}</code> - 干支纪日</li>
+            <li><code>{{ "{{solar_term}}" }}</code> - 节气</li>
+            <li><code>{{ "{{lunar_festival}}" }}</code> - 农历节日</li>
+            <li><code>{{ "{{solar_festival}}" }}</code> - 阳历节日</li>
             <li><code>{{ "{{gift_idea}}" }}</code> - 礼物建议</li>
         </ul>
     </div>
