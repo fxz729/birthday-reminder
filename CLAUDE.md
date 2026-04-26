@@ -100,10 +100,13 @@ User (1) ───< Birthday (1) ───< Reminder (N)
 ### 前端设计
 
 - **Tailwind CSS**（Play CDN）— 实用优先的样式框架
-- **Alpine.js**（CDN）— 轻量交互（表单验证、搜索、暗色切换）
-- **Google Fonts**: Cormorant Garamond（标题）+ Quicksand（正文）
+- **Alpine.js**（CDN）— 轻量交互（表单验证、搜索、暗色切换、折叠面板）
+- **Google Fonts**: Cormorant Garamond（标题）+ Quicksand（正文）+ Noto Sans SC（中文字体）
+- **Lucide Icons**（CDN）— SVG 图标替代所有 emoji
+- **canvas-confetti**（CDN）— 页面加载、添加生日时的庆祝彩纸效果
 - **暗色模式**: `class="dark"` 策略 + localStorage 持久化
-- **配色**: 珊瑚红(#FF6B6B)、蜜桃(#FFA07A)、香槟金(#FFD700)
+- **配色**: 珊瑚红(#FF6B6B)、蜜桃(#FFA07A)、香槟金(#FFD700)、玫瑰红(#FF4D6D)、青色(#3EC1D3)、紫色(#6C5CE7)
+- **设计主题**: "Golden Hour Celebration" — 温暖金色夕阳氛围，毛玻璃卡片，装饰性粒子背景
 - 无构建步骤，`pip install` 即可运行
 
 ### 通知扩展模式
@@ -136,19 +139,22 @@ User (1) ───< Birthday (1) ───< Reminder (N)
 |------|-----|
 | 公网 IP | 106.12.70.228 |
 | SSH 用户 | root |
-| SSH 密码 | fengxunzhi2005. |
-| SSH 密钥 | `cc-k-jFxZbLqu.txt` |
+| SSH 密钥路径 | `D:\HuaweiMoveData\Users\11075\Desktop\个人开发\生日定时提醒\cc-k-jFxZbLqu.txt` |
 
 ### 部署命令
 
 ```bash
 # 连接服务器
-ssh root@106.12.70.228
+ssh -i "D:\HuaweiMoveData\Users\11075\Desktop\个人开发\生日定时提醒\cc-k-jFxZbLqu.txt" root@106.12.70.228
 
 # 在服务器上执行
 cd /root/birthday-reminder
+git pull origin master
 pip3 install --break-system-packages -r requirements.txt
-uvicorn app.main:app --host 0.0.0.0 --port 80
+
+# 重启服务（先杀旧进程，再启动新进程）
+pkill -f "uvicorn app.main"
+nohup uvicorn app.main:app --host 0.0.0.0 --port 80 > /var/log/birthday-reminder.log 2>&1 &
 ```
 
 ### 当前线上状态

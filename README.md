@@ -26,10 +26,14 @@
 - ✅ **密码重置** - 邮箱验证重置密码
 
 ### 界面特性
-- ✅ **暗色模式** - 支持明暗主题切换，持久化保存
-- ✅ **响应式设计** - 桌面/平板/移动端自适应
-- ✅ **实时搜索** - 客户端生日搜索过滤
-- ✅ **自定义模态框** - 删除确认等交互组件
+- ✅ **"Golden Hour" 主题设计** — 温暖金色日落配色，毛玻璃卡片效果
+- ✅ **Lucide 矢量图标** — 所有图标使用精美 SVG 替换 emoji
+- ✅ **庆祝彩纸效果** — canvas-confetti 页面载入和操作时的庆祝动画
+- ✅ **装饰粒子背景** — 多彩粒子漂浮动画
+- ✅ **暗色模式** — 支持明暗主题切换，持久化保存
+- ✅ **响应式设计** — 桌面/平板/移动端自适应
+- ✅ **实时搜索** — 客户端生日搜索过滤
+- ✅ **自定义模态框** — 删除确认等交互组件
 
 ## 快速开始
 
@@ -166,7 +170,7 @@ python -m scheduler.birthday_checker
 ## 技术栈
 
 - **后端**: FastAPI + SQLAlchemy + Pydantic + JWT
-- **前端**: Jinja2 + Tailwind CSS + Alpine.js（CDN，无构建步骤）
+- **前端**: Jinja2 + Tailwind CSS + Alpine.js + Lucide Icons + canvas-confetti（CDN，无构建步骤）
 - **数据库**: SQLite / PostgreSQL / MySQL
 - **通知**: QQ 邮箱 SMTP + ServerChan
 - **测试**: pytest (143 个测试用例)
