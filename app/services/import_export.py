@@ -34,6 +34,42 @@ def export_birthdays_to_csv(db: Session, user_id: int) -> str:
     return output.getvalue()
 
 
+def export_birthdays_to_txt(db: Session, user_id: int) -> str:
+    """导出用户生日为可读的 TXT 格式"""
+    from datetime import date
+
+    birthdays = db.query(Birthday).filter(Birthday.user_id == user_id).all()
+    today = date.today()
+    lines = [
+        "=" * 50,
+        "  Birthday Wishes - 生日列表导出",
+        f"  导出时间：{today}",
+        "=" * 50,
+        "",
+    ]
+
+    for i, b in enumerate(birthdays, 1):
+        btype = "农历" if b.is_lunar else "公历"
+        month, day = b.birth_date[5:7], b.birth_date[8:10]
+        lines.append(f"  {i}. {b.name}")
+        lines.append(f"     生日：{month}月{day}日（{btype}）")
+        lines.append(f"     邮箱：{b.email}")
+        if b.gift_idea:
+            lines.append(f"     礼物：{b.gift_idea}")
+        if b.notes:
+            lines.append(f"     备注：{b.notes}")
+        if b.categories:
+            cats = "、".join([c.name for c in b.categories])
+            lines.append(f"     分类：{cats}")
+        lines.append("")
+
+    lines.append("=" * 50)
+    lines.append(f"  共 {len(birthdays)} 条记录")
+    lines.append("=" * 50)
+
+    return "\n".join(lines)
+
+
 def import_birthdays_from_csv(db: Session, user_id: int, csv_content: str) -> int:
     """从 CSV 导入生日，返回导入数量"""
     from app.schemas import BirthdayCreate

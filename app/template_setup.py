@@ -12,3 +12,4 @@ def get_current_user(request: Request):
 
 
 templates.env.globals["current_user"] = get_current_user
+templates.env.globals["range"] = range

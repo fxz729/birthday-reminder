@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from app.models import Birthday, Reminder, User, Category
+from app.models import Birthday, Reminder, User, Category, birthday_categories, NotificationLog
 from app.schemas import BirthdayCreate, BirthdayUpdate, ReminderCreate
 
 
@@ -166,7 +166,6 @@ def delete_category(db: Session, category_id: int, user_id: Optional[int] = None
 
 def add_birthday_to_category(db: Session, birthday_id: int, category_id: int) -> bool:
     """将生日添加到分类"""
-    from app.models import birthday_categories
     existing = db.execute(
         birthday_categories.select().where(
             birthday_categories.c.birthday_id == birthday_id,
@@ -199,7 +198,6 @@ def create_notification_log(db: Session, birthday_id: int, user_id: int,
                              status: str = "success", subject: str = None,
                              error_message: str = None, reminder_id: int = None):
     """记录通知发送"""
-    from app.models import NotificationLog
     log = NotificationLog(
         birthday_id=birthday_id,
         user_id=user_id,
@@ -216,7 +214,6 @@ def create_notification_log(db: Session, birthday_id: int, user_id: int,
 
 def get_notification_logs(db: Session, user_id: int, limit: int = 20) -> list:
     """获取用户最近的发送记录"""
-    from app.models import NotificationLog
     return (
         db.query(NotificationLog)
         .filter(NotificationLog.user_id == user_id)

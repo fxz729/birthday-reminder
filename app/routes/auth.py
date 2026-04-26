@@ -6,6 +6,8 @@ from datetime import timedelta
 from app.database import get_db
 from app.models import User
 from app.services import auth as auth_service
+from app.services.statistics import get_dashboard_summary
+from app.services.notification.email import SimpleEmailSender
 from app.middleware.auth import get_optional_user
 from app.template_setup import templates
 from config import get_settings
@@ -70,13 +72,19 @@ async def register(
     confirm_password: str = Form(...),
     db: Session = Depends(get_db),
 ):
+    # 验证用户名
+    if len(username) < 2 or len(username) > 50:
+        return templates.TemplateResponse(
+            "register.html", {"request": request, "error": "用户名长度需在2-50个字符之间"}, status_code=400
+        )
+
     if password != confirm_password:
         return templates.TemplateResponse(
             "register.html", {"request": request, "error": "两次输入的密码不一致"}, status_code=400
         )
-    if len(password) < 6:
+    if len(password) < 8:
         return templates.TemplateResponse(
-            "register.html", {"request": request, "error": "密码长度至少6位"}, status_code=400
+            "register.html", {"request": request, "error": "密码长度至少8位"}, status_code=400
         )
 
     if db.query(User).filter(User.username == username).first():
@@ -115,9 +123,6 @@ async def dashboard(
 ):
     if not user:
         return RedirectResponse(url="/auth/login", status_code=302)
-
-    # 统计数据
-    from app.services.statistics import get_dashboard_summary
 
     stats = get_dashboard_summary(db, user_id=user.id)
 
@@ -171,8 +176,8 @@ async def update_profile(
             error = "当前密码错误"
         elif new_password != confirm_password:
             error = "两次输入的新密码不一致"
-        elif len(new_password) < 6:
-            error = "新密码长度至少6位"
+        elif len(new_password) < 8:
+            error = "新密码长度至少8位"
         else:
             user.password_hash = auth_service.get_password_hash(new_password)
             success = "密码已更新"
@@ -220,8 +225,6 @@ async def send_reset_email(
 
     # Try to send reset email
     try:
-        from app.services.notification.email import SimpleEmailSender
-
         reset_link = f"{settings.base_url}/auth/reset-password/{reset_token}"
         smtp_config = {
             "server": settings.mail_server,
@@ -285,10 +288,10 @@ async def reset_password(
             "reset_password.html",
             {"request": request, "error": "两次输入的密码不一致", "success": None, "reset_token": token},
         )
-    if len(password) < 6:
+    if len(password) < 8:
         return templates.TemplateResponse(
             "reset_password.html",
-            {"request": request, "error": "密码长度至少6位", "success": None, "reset_token": token},
+            {"request": request, "error": "密码长度至少8位", "success": None, "reset_token": token},
         )
 
     user_id = payload.get("user_id")

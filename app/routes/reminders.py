@@ -13,15 +13,16 @@ from app.middleware.auth import get_optional_user, get_current_user
 from app.template_setup import templates
 from app.models import User
 from config import get_settings
+from app.services.notification.email import SimpleEmailSender
 
 router = APIRouter(prefix="/birthdays", tags=["reminders"])
 
 DEFAULT_REMINDER_PRESETS = [
-    {"days_before": 0, "label": "当天", "cron_time": "0 9 * * *"},
-    {"days_before": 1, "label": "提前1天", "cron_time": "0 9 * * *"},
-    {"days_before": 3, "label": "提前3天", "cron_time": "0 9 * * *"},
-    {"days_before": 7, "label": "提前7天", "cron_time": "0 9 * * *"},
-    {"days_before": 30, "label": "提前30天", "cron_time": "0 9 * * *"},
+    {"days_before": 0, "label": "当天", "cron_time": "0 9 * * *", "default_time": "09:00"},
+    {"days_before": 1, "label": "提前1天", "cron_time": "0 9 * * *", "default_time": "09:00"},
+    {"days_before": 3, "label": "提前3天", "cron_time": "0 9 * * *", "default_time": "09:00"},
+    {"days_before": 7, "label": "提前7天", "cron_time": "0 9 * * *", "default_time": "09:00"},
+    {"days_before": 30, "label": "提前30天", "cron_time": "0 9 * * *", "default_time": "09:00"},
 ]
 
 
@@ -42,6 +43,21 @@ async def reminder_config_page(
     settings = get_settings()
     serverchan_enabled = bool(settings.serverchan_sckey)
 
+    # Build pre-fill data from saved reminders
+    enabled_days = {r.days_before for r in reminders if r.is_enabled}
+    saved_templates = {r.days_before: r.template for r in reminders if r.template}
+    saved_times = {}
+    saved_notify_types = {}
+    for r in reminders:
+        parts = r.cron_time.split()
+        if len(parts) >= 2:
+            try:
+                saved_times[r.days_before] = f"{int(parts[1]):02d}:{int(parts[0]):02d}"
+            except ValueError:
+                pass
+        if r.notification_type:
+            saved_notify_types[r.days_before] = r.notification_type
+
     return templates.TemplateResponse(
         "reminder_form.html",
         {
@@ -52,6 +68,10 @@ async def reminder_config_page(
             "errors": None,
             "serverchan_enabled": serverchan_enabled,
             "user": current_user,
+            "enabled_days": enabled_days,
+            "saved_templates": saved_templates,
+            "saved_times": saved_times,
+            "saved_notify_types": saved_notify_types,
         },
     )
 
@@ -72,26 +92,55 @@ async def update_reminders(
     form_data = await request.form()
 
     existing_reminders = crud.get_reminders_for_birthday(db, birthday_id)
-    for r in existing_reminders:
-        crud.delete_reminder(db, r.id)
+    existing_by_days = {r.days_before: r for r in existing_reminders}
 
-    new_reminders = []
     for preset in DEFAULT_REMINDER_PRESETS:
         key = f"reminder_{preset['days_before']}"
         if key in form_data:
             notify_type = form_data.get(f"notify_type_{preset['days_before']}", "email")
+            time_val = form_data.get(f"time_{preset['days_before']}", preset["default_time"])
+            try:
+                hour, minute = time_val.split(":")
+                cron_time = f"{int(minute)} {int(hour)} * * *"
+            except (ValueError, AttributeError):
+                cron_time = preset["cron_time"]
             reminder_data = ReminderCreate(
                 days_before=preset["days_before"],
-                cron_time=form_data.get(f"cron_{preset['days_before']}", preset["cron_time"]),
+                cron_time=cron_time,
                 is_enabled=True,
                 template=form_data.get(f"template_{preset['days_before']}") or None,
                 notification_type=notify_type,
             )
-            crud.create_reminder(db, birthday_id, reminder_data)
-            new_reminders.append(reminder_data)
+
+            db_days = preset["days_before"]
+            if db_days in existing_by_days:
+                crud.update_reminder(db, existing_by_days[db_days].id, reminder_data)
+            else:
+                crud.create_reminder(db, birthday_id, reminder_data)
+        else:
+            db_days = preset["days_before"]
+            if db_days in existing_by_days:
+                crud.delete_reminder(db, existing_by_days[db_days].id)
+
+    new_reminders = crud.get_reminders_for_birthday(db, birthday_id)
 
     settings = get_settings()
     serverchan_enabled = bool(settings.serverchan_sckey)
+
+    # Build pre-fill data from newly saved reminders
+    enabled_days = {r.days_before for r in new_reminders if r.is_enabled}
+    saved_templates = {r.days_before: r.template for r in new_reminders if r.template}
+    saved_times = {}
+    saved_notify_types = {}
+    for r in new_reminders:
+        parts = r.cron_time.split()
+        if len(parts) >= 2:
+            try:
+                saved_times[r.days_before] = f"{int(parts[1]):02d}:{int(parts[0]):02d}"
+            except ValueError:
+                pass
+        if r.notification_type:
+            saved_notify_types[r.days_before] = r.notification_type
 
     return templates.TemplateResponse(
         "reminder_form.html",
@@ -104,6 +153,10 @@ async def update_reminders(
             "success": True,
             "serverchan_enabled": serverchan_enabled,
             "user": current_user,
+            "enabled_days": enabled_days,
+            "saved_templates": saved_templates,
+            "saved_times": saved_times,
+            "saved_notify_types": saved_notify_types,
         },
     )
 
@@ -139,14 +192,13 @@ async def test_reminder(
         raise HTTPException(status_code=400, detail="邮件服务未配置")
 
     try:
-        from app.services.notification.email import SimpleEmailSender
-
         smtp_config = {
             "server": settings.mail_server,
             "port": settings.mail_port,
             "username": settings.mail_username,
             "password": settings.mail_password,
-            "use_tls": settings.mail_starttls,
+            "use_tls": settings.mail_ssl_tls,
+            "starttls": settings.mail_starttls,
         }
         sender = SimpleEmailSender(smtp_config)
         await sender.send(

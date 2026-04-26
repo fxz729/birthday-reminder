@@ -7,11 +7,12 @@
 特性：
 - 异步并发发送多个通知
 - 支持多种通知渠道
-- 包含丰富的干支/生肖/节日信息
+- 自动去重：同一提醒每天只发送一次
+- 精确到分钟的 cron 时间匹配
 """
 import asyncio
 import sys
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from typing import List, Tuple
 
@@ -20,7 +21,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from sqlalchemy.orm import Session
 from app.database import SessionLocal, init_db
 from app import crud
-from app.services.lunar import days_until_birthday, get_birthday_info
+from app.models import NotificationLog
+from app.services.lunar import days_until_birthday
 from app.services.template import render_birthday_reminder_html
 from app.services.notification import NotificationFactory
 from config import get_settings
@@ -44,11 +46,6 @@ async def send_notification(
         Tuple[bool, str]: (是否成功, 消息)
     """
     try:
-        # 获取丰富的日期信息
-        year, month, day = map(int, birthday.birth_date.split("-"))
-        birth_date_obj = date(year, month, day)
-        extra_info = get_birthday_info(birth_date_obj, birthday.is_lunar)
-
         # 渲染邮件内容
         content = render_birthday_reminder_html(
             name=birthday.name,
@@ -58,7 +55,6 @@ async def send_notification(
             custom_template=reminder.template,
             gift_idea=birthday.gift_idea,
             notes=birthday.notes,
-            include_rich_info=True
         )
 
         # 创建发送器并发送
@@ -71,8 +67,8 @@ async def send_notification(
             name=birthday.name,
             content=content,
             days_until=days_left,
-            age=extra_info.get('age', 0),
-            extra_info=extra_info
+            age=0,
+            extra_info={"days_until": days_left}
         )
 
         if success:
@@ -83,6 +79,45 @@ async def send_notification(
     except Exception as e:
         logger.error(f"发送通知时出错: {birthday.name}, 错误: {type(e).__name__}: {e}")
         return False, f"✗ 异常: {type(e).__name__}: {e}"
+
+
+def _already_sent_today(db: Session, reminder_id: int) -> bool:
+    """检查今天是否已经发送过该提醒（基于 UTC 时间，与 created_at 时区一致）"""
+    now = datetime.utcnow()
+    today_start = datetime(now.year, now.month, now.day)
+    return db.query(NotificationLog).filter(
+        NotificationLog.reminder_id == reminder_id,
+        NotificationLog.created_at >= today_start,
+        NotificationLog.status == "success",
+    ).first() is not None
+
+
+def _log_notification(db: Session, reminder, birthday, success: bool, message: str):
+    """记录通知发送历史"""
+    log = NotificationLog(
+        birthday_id=birthday.id,
+        user_id=birthday.user_id,
+        reminder_id=reminder.id,
+        notification_type=reminder.notification_type,
+        recipient=birthday.email,
+        status="success" if success else "failed",
+        error_message=None if success else message,
+    )
+    db.add(log)
+    db.commit()
+
+
+def _matches_cron_time(reminder) -> bool:
+    """检查当前时间是否匹配提醒的 cron 时间（精确到分钟）"""
+    parts = reminder.cron_time.split() if reminder.cron_time else []
+    if len(parts) >= 2:
+        try:
+            cron_minute, cron_hour = int(parts[0]), int(parts[1])
+        except ValueError:
+            return False  # 解析失败不发送
+        now = datetime.now()
+        return now.hour == cron_hour and now.minute == cron_minute
+    return False
 
 
 async def process_reminder(
@@ -102,9 +137,26 @@ async def process_reminder(
     if days_left != reminder.days_before:
         return False, None  # 不需要发送
 
+    # 检查当前时间是否匹配 cron 时间
+    if not _matches_cron_time(reminder):
+        return False, None
+
+    # 去重：今天已发送过则跳过
+    if _already_sent_today(db, reminder.id):
+        return False, None
+
     logger.info(f"发送提醒: {birthday.name}, 提前 {days_left} 天, 类型: {reminder.notification_type}")
 
-    return await send_notification(reminder, birthday, days_left, factory, db)
+    result = await send_notification(reminder, birthday, days_left, factory, db)
+
+    # 记录发送历史
+    success, message = result
+    try:
+        _log_notification(db, reminder, birthday, success, message)
+    except Exception as e:
+        logger.error(f"记录通知日志失败: {e}")
+
+    return result
 
 
 async def check_and_send_reminders():
@@ -119,7 +171,8 @@ async def check_and_send_reminders():
         "port": settings.mail_port,
         "username": settings.mail_username,
         "password": settings.mail_password,
-        "use_tls": settings.mail_starttls,
+        "use_tls": settings.mail_ssl_tls,
+        "starttls": settings.mail_starttls,
     }
     factory = NotificationFactory(
         smtp_config=smtp_config,

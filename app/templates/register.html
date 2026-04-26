@@ -1,12 +1,9 @@
 {% extends "base.html" %}
-
 {% block title %}注册{% endblock %}
 
 {% block extra_head %}
 <style>
-    .deco-float {
-        animation: decoDrift 6s ease-in-out infinite;
-    }
+    .deco-float { animation: decoDrift 6s ease-in-out infinite; }
     @keyframes decoDrift {
         0%, 100% { transform: translateY(0) rotate(0deg); }
         33% { transform: translateY(-10px) rotate(5deg); }
@@ -19,139 +16,137 @@
 
 {% block content %}
 <div class="min-h-[calc(100vh-8rem)] flex items-center justify-center py-8">
-    <div class="w-full max-w-md relative">
+    <div class="w-full max-w-4xl mx-auto px-4 flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
 
-        <!-- Floating decorative emojis -->
-        <span class="deco-float absolute -top-8 -left-8 text-4xl opacity-20 dark:opacity-10 pointer-events-none">🎁</span>
-        <span class="deco-float absolute -bottom-6 -right-6 text-3xl opacity-20 dark:opacity-10 pointer-events-none">🎉</span>
-        <span class="deco-float absolute top-1/3 -right-10 text-2xl opacity-15 dark:opacity-10 pointer-events-none">🌟</span>
+        <!-- Right: Auth Card -->
+        <div class="w-full max-w-md fade-in-up order-1 lg:order-2">
+            <div class="bg-white dark:bg-[#2D2D3F] rounded-2xl shadow-xl shadow-[#FF6B6B]/10 dark:shadow-black/30 overflow-hidden relative">
+                <span class="deco-float absolute -top-8 -left-8 text-4xl opacity-20 dark:opacity-10 pointer-events-none">🎁</span>
+                <span class="deco-float absolute -bottom-6 -right-6 text-3xl opacity-20 dark:opacity-10 pointer-events-none">🎉</span>
+                <span class="deco-float absolute top-1/3 -right-10 text-2xl opacity-15 dark:opacity-10 pointer-events-none">🌟</span>
 
-        <!-- Auth Card -->
-        <div class="bg-white dark:bg-[#2D2D3F] rounded-2xl shadow-xl shadow-[#FF6B6B]/10 dark:shadow-black/30 overflow-hidden fade-in-up relative">
-            <!-- Gradient accent bar -->
-            <div class="h-1.5 bg-gradient-to-r from-[#FFD700] via-[#FFA07A] to-[#FF6B6B]"></div>
-
-            <div class="p-8 sm:p-10">
-                <!-- App Icon -->
-                <div class="text-center mb-6">
-                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#FFD700] to-[#FFA07A] text-3xl shadow-lg shadow-[#FFD700]/30 animate-bounce">
-                        🎁
-                    </div>
-                </div>
-
-                <!-- Title -->
-                <h1 class="text-center font-['Cormorant_Garamond',serif] text-3xl font-semibold text-gray-800 dark:text-gray-100 mb-1">
-                    加入我们
-                </h1>
-                <p class="text-center text-gray-400 dark:text-gray-500 text-sm mb-8 font-['Quicksand']">
-                    创建你的生日提醒账号
-                </p>
-
-                <!-- Error Banner -->
-                {% if error %}
-                <div class="flex items-center gap-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl mb-6 text-sm shake">
-                    <span>❌</span>
-                    <span>{{ error }}</span>
-                </div>
-                {% endif %}
-
-                <!-- Register Form -->
-                <form method="POST" action="/auth/register" x-data="registerForm()" @submit.prevent="handleSubmit">
-                    <!-- Username -->
-                    <div class="mb-4">
-                        <label for="username" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">用户名</label>
-                        <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">👤</span>
-                            <input type="text" id="username" name="username" x-model="form.username" required
-                                   placeholder="选择一个用户名" minlength="3" maxlength="20" autocomplete="username"
-                                   class="w-full pl-10 pr-4 py-3 rounded-full border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 placeholder-gray-400 text-sm focus:outline-none focus:border-[#FF6B6B] input-glow transition-all"
-                                   :class="{ 'border-red-400': errors.username }">
+                <div class="h-1.5 bg-gradient-to-r from-[#FFD700] via-[#FFA07A] to-[#FF6B6B]"></div>
+                <div class="p-8 sm:p-10">
+                    <div class="text-center mb-6">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#FFD700] to-[#FFA07A] shadow-lg shadow-[#FFD700]/30 animate-bounce">
+                            <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+                            </svg>
                         </div>
-                        <p x-show="errors.username" x-text="errors.username" class="text-red-500 text-xs mt-1 ml-2" style="display:none"></p>
                     </div>
 
-                    <!-- Email -->
-                    <div class="mb-4">
-                        <label for="email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">邮箱</label>
-                        <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">📧</span>
-                            <input type="email" id="email" name="email" x-model="form.email" required
-                                   placeholder="your@email.com" autocomplete="email"
-                                   class="w-full pl-10 pr-4 py-3 rounded-full border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 placeholder-gray-400 text-sm focus:outline-none focus:border-[#FF6B6B] input-glow transition-all"
-                                   :class="{ 'border-red-400': errors.email }">
-                        </div>
-                        <p x-show="errors.email" x-text="errors.email" class="text-red-500 text-xs mt-1 ml-2" style="display:none"></p>
-                    </div>
+                    <h1 class="text-center font-['Cormorant_Garamond',serif] text-3xl font-semibold text-gray-800 dark:text-gray-100 mb-1">加入我们</h1>
+                    <p class="text-center text-gray-400 dark:text-gray-500 text-sm mb-8">创建你的生日提醒账号</p>
 
-                    <!-- Password with Strength Bar -->
-                    <div class="mb-4">
-                        <label for="password" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">密码</label>
-                        <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔒</span>
-                            <input type="password" id="password" name="password" x-model="form.password" required
-                                   placeholder="至少6位密码" minlength="6" autocomplete="new-password"
-                                   class="w-full pl-10 pr-4 py-3 rounded-full border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 placeholder-gray-400 text-sm focus:outline-none focus:border-[#FF6B6B] input-glow transition-all"
-                                   :class="{ 'border-red-400': errors.password }">
-                        </div>
-                        <!-- Strength Bar -->
-                        <div x-show="form.password.length > 0" class="mt-2" style="display:none">
-                            <div class="h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                                <div class="h-full rounded-full transition-all duration-300"
-                                     :class="strengthBarClass"
-                                     :style="'width: ' + strength.score + '%'"></div>
+                    {% if error %}
+                    <div class="flex items-center gap-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl mb-6 text-sm shake">
+                        <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>{{ error }}</span>
+                    </div>
+                    {% endif %}
+
+                    <form method="POST" action="/auth/register" x-data="registerForm()" @submit.prevent="handleSubmit">
+                        <div class="mb-4">
+                            <label for="username" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">用户名</label>
+                            <div class="relative">
+                                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                <input type="text" id="username" name="username" x-model="form.username" required placeholder="选择一个用户名" minlength="3" maxlength="20" autocomplete="username"
+                                       class="w-full pl-10 pr-4 py-3 rounded-full border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 placeholder-gray-400 text-sm focus:outline-none focus:border-[#FF6B6B] input-glow transition-all"
+                                       :class="{ 'border-red-400': errors.username }">
                             </div>
-                            <p class="text-xs mt-1 ml-1" :class="strengthTextClass" x-text="'密码强度: ' + strength.label"></p>
+                            <p x-show="errors.username" x-text="errors.username" class="text-red-500 text-xs mt-1 ml-2" style="display:none"></p>
                         </div>
-                        <p x-show="errors.password" x-text="errors.password" class="text-red-500 text-xs mt-1 ml-2" style="display:none"></p>
-                    </div>
 
-                    <!-- Confirm Password with Match Indicator -->
-                    <div class="mb-6">
-                        <label for="confirm_password" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">确认密码</label>
-                        <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔒</span>
-                            <input type="password" id="confirm_password" name="confirm_password" x-model="form.confirmPassword" required
-                                   placeholder="再次输入密码" autocomplete="new-password"
-                                   class="w-full pl-10 pr-4 py-3 rounded-full border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 placeholder-gray-400 text-sm focus:outline-none focus:border-[#FF6B6B] input-glow transition-all"
-                                   :class="{ 'border-green-400': form.confirmPassword && form.password === form.confirmPassword, 'border-red-400': form.confirmPassword && form.password !== form.confirmPassword }">
+                        <div class="mb-4">
+                            <label for="email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">邮箱</label>
+                            <div class="relative">
+                                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8.688c0-.746.497-1.403 1.185-1.638l7.47-2.556a1.724 1.724 0 011.39 0l7.77 2.556A1.724 1.724 0 0122 8.688v1.035a.75.75 0 01-.75.75H3.75a.75.75 0 01-.75-.75V8.688zM3 12.75v3.563c0 .746.497 1.403 1.185 1.638l7.47 2.556a1.724 1.724 0 001.39 0l7.77-2.556A1.724 1.724 0 0022 16.313V12.75"/></svg>
+                                <input type="email" id="email" name="email" x-model="form.email" required placeholder="your@email.com" autocomplete="email"
+                                       class="w-full pl-10 pr-4 py-3 rounded-full border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 placeholder-gray-400 text-sm focus:outline-none focus:border-[#FF6B6B] input-glow transition-all"
+                                       :class="{ 'border-red-400': errors.email }">
+                            </div>
+                            <p x-show="errors.email" x-text="errors.email" class="text-red-500 text-xs mt-1 ml-2" style="display:none"></p>
                         </div>
-                        <!-- Match indicator -->
-                        <p x-show="form.confirmPassword && form.password === form.confirmPassword" class="text-green-500 text-xs mt-1 ml-2">
-                            ✅ 密码匹配
-                        </p>
-                        <p x-show="form.confirmPassword && form.password !== form.confirmPassword" class="text-red-500 text-xs mt-1 ml-2">
-                            ❌ 密码不匹配
-                        </p>
+
+                        <div class="mb-4">
+                            <label for="password" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">密码</label>
+                            <div class="relative">
+                                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                <input type="password" id="password" name="password" x-model="form.password" required placeholder="至少6位密码" minlength="6" autocomplete="new-password"
+                                       class="w-full pl-10 pr-4 py-3 rounded-full border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 placeholder-gray-400 text-sm focus:outline-none focus:border-[#FF6B6B] input-glow transition-all"
+                                       :class="{ 'border-red-400': errors.password }">
+                            </div>
+                            <div x-show="form.password.length > 0" class="mt-2" style="display:none">
+                                <div class="h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-300" :class="strengthBarClass" :style="'width: ' + strength.score + '%'"></div>
+                                </div>
+                                <p class="text-xs mt-1 ml-1" :class="strengthTextClass" x-text="'密码强度: ' + strength.label"></p>
+                            </div>
+                            <p x-show="errors.password" x-text="errors.password" class="text-red-500 text-xs mt-1 ml-2" style="display:none"></p>
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="confirm_password" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">确认密码</label>
+                            <div class="relative">
+                                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                <input type="password" id="confirm_password" name="confirm_password" x-model="form.confirmPassword" required placeholder="再次输入密码" autocomplete="new-password"
+                                       class="w-full pl-10 pr-4 py-3 rounded-full border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 placeholder-gray-400 text-sm focus:outline-none focus:border-[#FF6B6B] input-glow transition-all"
+                                       :class="{ 'border-green-400': form.confirmPassword && form.password === form.confirmPassword, 'border-red-400': form.confirmPassword && form.password !== form.confirmPassword }">
+                            </div>
+                            <p x-show="form.confirmPassword && form.password === form.confirmPassword" class="text-green-500 text-xs mt-1 ml-2">
+                                <svg class="w-3.5 h-3.5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 密码匹配
+                            </p>
+                            <p x-show="form.confirmPassword && form.password !== form.confirmPassword" class="text-red-500 text-xs mt-1 ml-2">
+                                <svg class="w-3.5 h-3.5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg> 密码不匹配
+                            </p>
+                        </div>
+
+                        <div class="flex items-start gap-2 mb-6">
+                            <input type="checkbox" id="terms" name="terms" x-model="form.terms" class="w-4 h-4 mt-0.5 rounded border-gray-300 text-[#FF6B6B] focus:ring-[#FF6B6B]">
+                            <label for="terms" class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                                我已阅读并同意 <a href="#" class="text-[#FF6B6B] hover:underline">服务条款</a> 和 <a href="#" class="text-[#FF6B6B] hover:underline">隐私政策</a>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="w-full py-3 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#FF6B6B] to-[#FFA07A] hover:shadow-lg hover:shadow-[#FF6B6B]/30 hover:-translate-y-0.5 transition-all btn-ripple disabled:opacity-50 disabled:cursor-not-allowed" :disabled="!isValid">
+                            注 册
+                        </button>
+                    </form>
+
+                    <div class="flex items-center gap-3 my-6">
+                        <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+                        <span class="text-xs text-gray-400 dark:text-gray-500">或</span>
+                        <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
                     </div>
 
-                    <!-- Terms Checkbox -->
-                    <div class="flex items-start gap-2 mb-6">
-                        <input type="checkbox" id="terms" name="terms" x-model="form.terms"
-                               class="w-4 h-4 mt-0.5 rounded border-gray-300 text-[#FF6B6B] focus:ring-[#FF6B6B]">
-                        <label for="terms" class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                            我已阅读并同意 <a href="#" class="text-[#FF6B6B] hover:underline">服务条款</a> 和 <a href="#" class="text-[#FF6B6B] hover:underline">隐私政策</a>
-                        </label>
-                    </div>
-
-                    <!-- Submit -->
-                    <button type="submit"
-                            class="w-full py-3 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#FF6B6B] to-[#FFA07A] hover:shadow-lg hover:shadow-[#FF6B6B]/30 hover:-translate-y-0.5 transition-all btn-ripple disabled:opacity-50 disabled:cursor-not-allowed"
-                            :disabled="!isValid">
-                        注 册
-                    </button>
-                </form>
-
-                <!-- Divider -->
-                <div class="flex items-center gap-3 my-6">
-                    <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
-                    <span class="text-xs text-gray-400 dark:text-gray-500">或</span>
-                    <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+                    <p class="text-center text-sm text-gray-400 dark:text-gray-500">
+                        已有账号？
+                        <a href="/auth/login" class="text-[#FF6B6B] hover:text-[#FFA07A] font-semibold transition-colors">立即登录</a>
+                    </p>
                 </div>
+            </div>
+        </div>
 
-                <!-- Login Link -->
-                <p class="text-center text-sm text-gray-400 dark:text-gray-500">
-                    已有账号？
-                    <a href="/auth/login" class="text-[#FF6B6B] hover:text-[#FFA07A] font-semibold transition-colors">立即登录</a>
+        <!-- Left: Decorative -->
+        <div class="flex-1 hidden lg:block text-center lg:text-left fade-in-up order-2 lg:order-1">
+            <div class="max-w-md mx-auto lg:mx-0">
+                <div class="relative mb-8">
+                    <div class="relative w-full aspect-[4/3] rounded-2xl bg-gradient-to-br from-[#FFD700]/20 via-[#FFA07A]/10 to-[#FF6B6B]/20 overflow-hidden flex items-center justify-center">
+                        <span class="deco-float absolute top-6 left-8 text-5xl opacity-70">🎉</span>
+                        <span class="deco-float absolute top-4 right-12 text-4xl opacity-60" style="animation-delay: 0.5s">🎂</span>
+                        <span class="deco-float absolute bottom-12 left-16 text-5xl opacity-70" style="animation-delay: 1s">🎈</span>
+                        <span class="deco-float absolute bottom-8 right-8 text-4xl opacity-60" style="animation-delay: 1.5s">🎁</span>
+                        <svg class="w-32 h-32 text-[#FFA07A]/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+                        </svg>
+                    </div>
+                </div>
+                <h1 class="font-['Cormorant_Garamond',serif] text-3xl sm:text-4xl font-semibold text-gray-800 dark:text-gray-100 leading-tight mb-4">
+                    开启你的<br>
+                    <span class="gradient-text">生日提醒之旅</span>
+                </h1>
+                <p class="text-gray-400 dark:text-gray-500 text-sm leading-relaxed">
+                    注册即享所有功能：农历支持、多渠道提醒、<br>自定义祝福模板，再也不会错过重要日子
                 </p>
             </div>
         </div>
@@ -163,68 +158,33 @@
 <script>
     function registerForm() {
         return {
-            form: {
-                username: '',
-                email: '',
-                password: '',
-                confirmPassword: '',
-                terms: false,
-            },
+            form: { username: '', email: '', password: '', confirmPassword: '', terms: false },
             errors: {},
             strength: { level: 'none', score: 0, label: '无' },
             get isValid() {
-                return this.form.username.length >= 3
-                    && this.form.email.includes('@')
-                    && this.form.password.length >= 6
-                    && this.form.password === this.form.confirmPassword
-                    && this.form.terms;
+                return this.form.username.length >= 3 && this.form.email.includes('@') && this.form.password.length >= 6 && this.form.password === this.form.confirmPassword && this.form.terms;
             },
             get strengthBarClass() {
-                const map = {
-                    weak: 'bg-[#FF4757]',
-                    fair: 'bg-[#FFA502]',
-                    good: 'bg-[#7EBF8E]',
-                    strong: 'bg-[#2ED573]',
-                };
+                const map = { weak: 'bg-[#FF4757]', fair: 'bg-[#FFA502]', good: 'bg-[#7EBF8E]', strong: 'bg-[#2ED573]' };
                 return map[this.strength.level] || 'bg-gray-200';
             },
             get strengthTextClass() {
-                const map = {
-                    weak: 'text-[#FF4757]',
-                    fair: 'text-[#FFA502]',
-                    good: 'text-[#7EBF8E]',
-                    strong: 'text-[#2ED573]',
-                };
+                const map = { weak: 'text-[#FF4757]', fair: 'text-[#FFA502]', good: 'text-[#7EBF8E]', strong: 'text-[#2ED573]' };
                 return map[this.strength.level] || 'text-gray-400';
             },
             init() {
                 this.$watch('form.password', val => {
-                    if (window.estimatePasswordStrength) {
-                        this.strength = window.estimatePasswordStrength(val);
-                    }
+                    if (window.estimatePasswordStrength) this.strength = window.estimatePasswordStrength(val);
                 });
             },
             handleSubmit() {
-                // Client-side validation
                 this.errors = {};
-                if (this.form.username.length < 3) {
-                    this.errors.username = '用户名至少3个字符';
-                }
-                if (!this.form.email.includes('@')) {
-                    this.errors.email = '请输入有效的邮箱地址';
-                }
-                if (this.form.password.length < 6) {
-                    this.errors.password = '密码长度至少6位';
-                }
-                if (this.form.password !== this.form.confirmPassword) {
-                    this.errors.confirmPassword = '密码不匹配';
-                }
-                if (!this.form.terms) {
-                    return;
-                }
-                if (Object.keys(this.errors).length === 0) {
-                    this.$el.submit();
-                }
+                if (this.form.username.length < 3) this.errors.username = '用户名至少3个字符';
+                if (!this.form.email.includes('@')) this.errors.email = '请输入有效的邮箱地址';
+                if (this.form.password.length < 6) this.errors.password = '密码长度至少6位';
+                if (this.form.password !== this.form.confirmPassword) this.errors.confirmPassword = '密码不匹配';
+                if (!this.form.terms) return;
+                if (Object.keys(this.errors).length === 0) this.$el.submit();
             },
         };
     }

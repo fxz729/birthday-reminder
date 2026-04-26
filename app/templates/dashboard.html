@@ -1,47 +1,82 @@
 {% extends "base.html" %}
-
 {% block title %}控制台{% endblock %}
+
+{% block extra_head %}
+<style>
+    .typing-cursor::after {
+        content: '|';
+        animation: blink-cursor 1s step-end infinite;
+        color: white;
+        font-weight: 100;
+    }
+    @keyframes blink-cursor {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <!-- ======== Hero Section ======== -->
-<div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#FF6B6B] via-[#FFA07A] to-[#FFD700] p-8 sm:p-10 mb-8 fade-in-up">
-    <!-- Decorative circles -->
-    <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white/10 pointer-events-none"></div>
-    <div class="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-white/5 pointer-events-none"></div>
+<div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#FF6B6B] via-[#FFA07A] to-[#FFD700] p-8 sm:p-10 mb-8 fade-in-up gradient-mesh">
+    <!-- Decorative background elements -->
+    <div class="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/10 pointer-events-none"></div>
+    <div class="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-white/5 pointer-events-none"></div>
     <div class="absolute top-1/2 right-1/4 w-32 h-32 rounded-full bg-white/5 pointer-events-none"></div>
 
-    <div class="relative z-10">
+    <!-- Floating decorations -->
+    <div class="absolute top-4 right-12 text-3xl float-sparkle pointer-events-none opacity-30">🎈</div>
+    <div class="absolute bottom-8 right-20 text-2xl float-sparkle pointer-events-none opacity-25" style="animation-delay: 0.5s">✨</div>
+    <div class="absolute top-12 left-1/3 text-3xl float-sparkle pointer-events-none opacity-20" style="animation-delay: 1s">🎁</div>
+
+    <div class="relative z-10" data-celebrate-once>
         <h2 class="font-['Cormorant_Garamond',serif] text-3xl sm:text-4xl font-semibold text-white mb-2">
-            👋 欢迎回来，{{ user.username }}！
+            👋 欢迎回来，<span class="text-white/90">{{ user.username }}</span>！
         </h2>
         <p class="text-white/85 text-base sm:text-lg max-w-xl leading-relaxed">
             用心记住每一个重要的日子，再也不会错过任何人的生日啦～
         </p>
+
+        <!-- Quick action badges -->
         <div class="flex flex-wrap gap-3 mt-6">
             <a href="/birthdays/add" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold text-[#FF6B6B] bg-white hover:bg-white/90 hover:-translate-y-0.5 transition-all shadow-lg shadow-black/10 btn-ripple">
-                <span>+</span> 添加生日
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                添加生日
             </a>
             <a href="/birthdays" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold text-white bg-white/20 hover:bg-white/30 border border-white/30 hover:-translate-y-0.5 transition-all">
-                📅 查看全部
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                查看全部
             </a>
+        </div>
+
+        <!-- Feature badges -->
+        <div class="mt-5 flex flex-wrap gap-3 text-sm">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-sm text-white/90">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                提醒我准备礼物
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-sm text-white/90">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8.688c0-.746.497-1.403 1.185-1.638l7.47-2.556a1.724 1.724 0 011.39 0l7.77 2.556A1.724 1.724 0 0122 8.688v1.035a.75.75 0 01-.75.75H3.75a.75.75 0 01-.75-.75V8.688zM3 12.75v3.563c0 .746.497 1.403 1.185 1.638l7.47 2.556a1.724 1.724 0 001.39 0l7.77-2.556A1.724 1.724 0 0022 16.313V12.75"/></svg>
+                自动发送祝福给 ta
+            </span>
         </div>
     </div>
 </div>
 
 <!-- ======== Stats Grid ======== -->
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
-    <!-- Total Birthdays -->
-    <div class="bg-white dark:bg-[#2D2D3F] rounded-xl p-5 sm:p-6 text-center shadow-sm hover:shadow-lg hover:shadow-[#FF6B6B]/10 dark:hover:shadow-black/30 card-hover fade-in-up" style="animation-delay: 0.05s">
-        <div class="text-3xl mb-2">🎂</div>
+    <div class="bg-white dark:bg-[#2D2D3F] rounded-xl p-5 sm:p-6 text-center shadow-sm hover:shadow-lg hover:shadow-[#FF6B6B]/10 dark:hover:shadow-black/30 card-hover fade-in-up relative overflow-hidden" style="animation-delay: 0.05s">
+        <div class="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-gradient-to-br from-[#FF6B6B]/10 to-transparent pointer-events-none"></div>
+        <svg class="w-8 h-8 mx-auto mb-2 text-[#FF6B6B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0A2.701 2.701 0 003 15.546M3 15.546V8.25a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 8.25v7.296"/></svg>
         <div class="font-['Cormorant_Garamond',serif] text-4xl font-bold text-[#8B4557] dark:text-[#FFB6C1] mb-1">
-            {{ user.birthdays|length if user.birthdays else '-' }}
+            {{ user.birthdays|length if user.birthdays else '0' }}
         </div>
         <div class="text-xs sm:text-sm text-gray-400 dark:text-gray-500 font-medium">已记录生日</div>
     </div>
 
-    <!-- This Month Birthdays -->
-    <div class="bg-white dark:bg-[#2D2D3F] rounded-xl p-5 sm:p-6 text-center shadow-sm hover:shadow-lg hover:shadow-[#FF6B6B]/10 dark:hover:shadow-black/30 card-hover fade-in-up" style="animation-delay: 0.1s">
-        <div class="text-3xl mb-2">📅</div>
+    <div class="bg-white dark:bg-[#2D2D3F] rounded-xl p-5 sm:p-6 text-center shadow-sm hover:shadow-lg hover:shadow-[#FF6B6B]/10 dark:hover:shadow-black/30 card-hover fade-in-up relative overflow-hidden" style="animation-delay: 0.1s">
+        <div class="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-gradient-to-br from-[#FFD700]/10 to-transparent pointer-events-none"></div>
+        <svg class="w-8 h-8 mx-auto mb-2 text-[#FFD700]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         <div class="font-['Cormorant_Garamond',serif] text-4xl font-bold text-[#8B4557] dark:text-[#FFB6C1] mb-1">
             {% set this_month = namespace(count=0) %}
             {% if user.birthdays %}
@@ -54,18 +89,18 @@
         <div class="text-xs sm:text-sm text-gray-400 dark:text-gray-500 font-medium">本月生日</div>
     </div>
 
-    <!-- Upcoming (next 30 days) -->
-    <div class="bg-white dark:bg-[#2D2D3F] rounded-xl p-5 sm:p-6 text-center shadow-sm hover:shadow-lg hover:shadow-[#FF6B6B]/10 dark:hover:shadow-black/30 card-hover fade-in-up" style="animation-delay: 0.15s">
-        <div class="text-3xl mb-2">✅</div>
+    <div class="bg-white dark:bg-[#2D2D3F] rounded-xl p-5 sm:p-6 text-center shadow-sm hover:shadow-lg hover:shadow-[#FF6B6B]/10 dark:hover:shadow-black/30 card-hover fade-in-up relative overflow-hidden" style="animation-delay: 0.15s">
+        <div class="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-gradient-to-br from-[#3EC1D3]/10 to-transparent pointer-events-none"></div>
+        <svg class="w-8 h-8 mx-auto mb-2 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
         <div class="font-['Cormorant_Garamond',serif] text-4xl font-bold text-[#8B4557] dark:text-[#FFB6C1] mb-1">
-            {{ user.birthdays|length if user.birthdays else '-' }}
+            {{ user.birthdays|length if user.birthdays else '0' }}
         </div>
         <div class="text-xs sm:text-sm text-gray-400 dark:text-gray-500 font-medium">已设提醒</div>
     </div>
 
-    <!-- Lunar Count -->
-    <div class="bg-white dark:bg-[#2D2D3F] rounded-xl p-5 sm:p-6 text-center shadow-sm hover:shadow-lg hover:shadow-[#FF6B6B]/10 dark:hover:shadow-black/30 card-hover fade-in-up" style="animation-delay: 0.2s">
-        <div class="text-3xl mb-2">🌙</div>
+    <div class="bg-white dark:bg-[#2D2D3F] rounded-xl p-5 sm:p-6 text-center shadow-sm hover:shadow-lg hover:shadow-[#FF6B6B]/10 dark:hover:shadow-black/30 card-hover fade-in-up relative overflow-hidden" style="animation-delay: 0.2s">
+        <div class="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-gradient-to-br from-[#6C5CE7]/10 to-transparent pointer-events-none"></div>
+        <svg class="w-8 h-8 mx-auto mb-2 text-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
         <div class="font-['Cormorant_Garamond',serif] text-4xl font-bold text-[#8B4557] dark:text-[#FFB6C1] mb-1">
             {% set lunar_count = namespace(count=0) %}
             {% if user.birthdays %}
@@ -79,24 +114,78 @@
     </div>
 </div>
 
+<!-- ======== Upcoming Birthdays Marquee ======== -->
+{% if user.birthdays %}
+<div class="bg-white dark:bg-[#2D2D3F] rounded-2xl p-6 sm:p-8 shadow-sm mb-8 fade-in-up overflow-hidden" style="animation-delay: 0.22s">
+    <div class="flex items-center gap-2 mb-4">
+        <svg class="w-5 h-5 text-[#FF6B6B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        <h3 class="font-['Cormorant_Garamond',serif] text-lg font-semibold text-[#8B4557] dark:text-gray-100">即将到来的生日</h3>
+    </div>
+    <div class="relative overflow-hidden">
+        <div class="flex gap-4 marquee-content">
+            {% for b in user.birthdays[:6] %}
+            <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#FFE8E8]/50 dark:bg-[#FF6B6B]/10 shrink-0">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#FF6B6B] to-[#FFA07A] flex items-center justify-center text-white font-semibold text-sm shadow-md">
+                    {{ b.name[0] }}
+                </div>
+                <div class="text-sm whitespace-nowrap">
+                    <span class="font-semibold text-[#8B4557] dark:text-gray-100">{{ b.name }}</span>
+                    <span class="text-gray-400 ml-2">{{ b.birth_date[5:7] }}/{{ b.birth_date[8:10] }}</span>
+                </div>
+            </div>
+            {% endfor %}
+            <!-- Duplicate for seamless loop -->
+            {% for b in user.birthdays[:6] %}
+            <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#FFE8E8]/50 dark:bg-[#FF6B6B]/10 shrink-0">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#FF6B6B] to-[#FFA07A] flex items-center justify-center text-white font-semibold text-sm shadow-md">
+                    {{ b.name[0] }}
+                </div>
+                <div class="text-sm whitespace-nowrap">
+                    <span class="font-semibold text-[#8B4557] dark:text-gray-100">{{ b.name }}</span>
+                    <span class="text-gray-400 ml-2">{{ b.birth_date[5:7] }}/{{ b.birth_date[8:10] }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- ======== Quick Actions ======== -->
 <div class="bg-white dark:bg-[#2D2D3F] rounded-2xl p-6 sm:p-8 shadow-sm mb-8 fade-in-up" style="animation-delay: 0.25s">
-    <h3 class="font-['Cormorant_Garamond',serif] text-xl font-semibold text-[#8B4557] dark:text-gray-100 mb-5">
-        ⚡ 快捷操作
-    </h3>
+    <div class="flex items-center gap-2 mb-5">
+        <svg class="w-5 h-5 text-[#FFD700]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <h3 class="font-['Cormorant_Garamond',serif] text-xl font-semibold text-[#8B4557] dark:text-gray-100">快捷操作</h3>
+    </div>
     <div class="flex flex-wrap gap-3">
         <a href="/birthdays/add" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#FF6B6B] to-[#FFA07A] hover:shadow-lg hover:shadow-[#FF6B6B]/30 hover:-translate-y-0.5 transition-all btn-ripple">
-            🎂 添加生日
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            添加生日
         </a>
         <a href="/birthdays" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold text-[#FF6B6B] border-2 border-[#FF6B6B]/30 hover:bg-[#FFE8E8] dark:hover:bg-[#FF6B6B]/10 hover:-translate-y-0.5 transition-all">
-            📋 管理列表
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+            管理列表
         </a>
-        <button onclick="window.toast.info('导出功能开发中')" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
-            📤 导出数据
-        </button>
+        <div x-data="{ open: false }" class="relative inline-block">
+            <button @click="open = !open" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                导出数据
+            </button>
+            <div x-show="open" @click.outside="open = false" x-cloak class="absolute left-0 mt-2 w-36 bg-white dark:bg-[#2D2D3F] rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden z-50">
+                <a href="/birthdays/export?format=csv" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-[#FFE8E8] dark:hover:bg-[#FF6B6B]/10 transition-colors">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    CSV 文件
+                </a>
+                <a href="/birthdays/export?format=txt" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-[#FFE8E8] dark:hover:bg-[#FF6B6B]/10 transition-colors">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    TXT 文本
+                </a>
+            </div>
+        </div>
         <form action="/auth/logout" method="post" class="inline">
             <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-red-500 transition-all">
-                🚪 退出登录
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                退出登录
             </button>
         </form>
     </div>
@@ -104,32 +193,60 @@
 
 <!-- ======== Features Grid ======== -->
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 fade-in-up" style="animation-delay: 0.3s">
-    <!-- Lunar Support -->
-    <div class="bg-white dark:bg-[#2D2D3F] rounded-2xl p-6 sm:p-7 text-center shadow-sm card-hover">
-        <div class="feature-icon text-3xl mb-3 transition-transform duration-300">🌙</div>
-        <h4 class="font-['Cormorant_Garamond',serif] text-lg font-semibold text-[#8B4557] dark:text-gray-100 mb-2">农历支持</h4>
-        <p class="text-gray-400 dark:text-gray-500 text-sm leading-relaxed">支持农历生日自动计算和提醒</p>
+    <div class="bg-white dark:bg-[#2D2D3F] rounded-2xl p-6 sm:p-7 shadow-sm card-hover border-l-4 border-[#FF6B6B]" data-reveal data-reveal-delay="0">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#FF6B6B]/20 to-[#FFA07A]/20 flex items-center justify-center feature-icon">
+                <svg class="w-6 h-6 text-[#FF6B6B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            </div>
+            <div>
+                <h4 class="font-['Cormorant_Garamond',serif] text-lg font-semibold text-[#8B4557] dark:text-gray-100">提醒我自己</h4>
+                <p class="text-xs text-gray-400">提前通知，做好准备</p>
+            </div>
+        </div>
+        <p class="text-gray-400 dark:text-gray-500 text-sm leading-relaxed ml-[60px]">
+            设置提前提醒，在朋友生日到来前通知你，让你有充足时间准备礼物和祝福。
+        </p>
     </div>
 
-    <!-- Multi-channel Notification -->
-    <div class="bg-white dark:bg-[#2D2D3F] rounded-2xl p-6 sm:p-7 text-center shadow-sm card-hover">
-        <div class="feature-icon text-3xl mb-3 transition-transform duration-300">📧</div>
-        <h4 class="font-['Cormorant_Garamond',serif] text-lg font-semibold text-[#8B4557] dark:text-gray-100 mb-2">多渠道通知</h4>
-        <p class="text-gray-400 dark:text-gray-500 text-sm leading-relaxed">邮件、ServerChan 等多渠道提醒</p>
+    <div class="bg-white dark:bg-[#2D2D3F] rounded-2xl p-6 sm:p-7 shadow-sm card-hover border-l-4 border-[#FFD700]" data-reveal data-reveal-delay="100">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#FFD700]/20 to-[#FFA07A]/20 flex items-center justify-center feature-icon">
+                <svg class="w-6 h-6 text-[#FFD700]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8.688c0-.746.497-1.403 1.185-1.638l7.47-2.556a1.724 1.724 0 011.39 0l7.77 2.556A1.724 1.724 0 0122 8.688v1.035a.75.75 0 01-.75.75H3.75a.75.75 0 01-.75-.75V8.688zM3 12.75v3.563c0 .746.497 1.403 1.185 1.638l7.47 2.556a1.724 1.724 0 001.39 0l7.77-2.556A1.724 1.724 0 0022 16.313V12.75"/></svg>
+            </div>
+            <div>
+                <h4 class="font-['Cormorant_Garamond',serif] text-lg font-semibold text-[#8B4557] dark:text-gray-100">自动发送祝福</h4>
+                <p class="text-xs text-gray-400">生日当天，祝福直达 ta 的邮箱</p>
+            </div>
+        </div>
+        <p class="text-gray-400 dark:text-gray-500 text-sm leading-relaxed ml-[60px]">
+            记录对方的邮箱，生日当天自动发送个性化祝福邮件，再忙也不会忘记。
+        </p>
     </div>
 
-    <!-- Gift Recommendations -->
-    <div class="bg-white dark:bg-[#2D2D3F] rounded-2xl p-6 sm:p-7 text-center shadow-sm card-hover">
-        <div class="feature-icon text-3xl mb-3 transition-transform duration-300">🎁</div>
-        <h4 class="font-['Cormorant_Garamond',serif] text-lg font-semibold text-[#8B4557] dark:text-gray-100 mb-2">礼物推荐</h4>
-        <p class="text-gray-400 dark:text-gray-500 text-sm leading-relaxed">智能礼物推荐，再也不用纠结</p>
+    <div class="bg-white dark:bg-[#2D2D3F] rounded-2xl p-6 sm:p-7 shadow-sm card-hover border-l-4 border-[#6C5CE7]" data-reveal data-reveal-delay="200">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#6C5CE7]/20 to-[#3EC1D3]/20 flex items-center justify-center feature-icon">
+                <svg class="w-6 h-6 text-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+            </div>
+            <div>
+                <h4 class="font-['Cormorant_Garamond',serif] text-lg font-semibold text-[#8B4557] dark:text-gray-100">农历支持</h4>
+                <p class="text-xs text-gray-400">自动计算，精准提醒</p>
+            </div>
+        </div>
+        <p class="text-gray-400 dark:text-gray-500 text-sm leading-relaxed ml-[60px]">支持农历生日自动计算和提醒，传统节日不再错过。</p>
     </div>
 
-    <!-- Calendar Sync -->
-    <div class="bg-white dark:bg-[#2D2D3F] rounded-2xl p-6 sm:p-7 text-center shadow-sm card-hover">
-        <div class="feature-icon text-3xl mb-3 transition-transform duration-300">📅</div>
-        <h4 class="font-['Cormorant_Garamond',serif] text-lg font-semibold text-[#8B4557] dark:text-gray-100 mb-2">日历同步</h4>
-        <p class="text-gray-400 dark:text-gray-500 text-sm leading-relaxed">生成 ICS 日历文件导入手机</p>
+    <div class="bg-white dark:bg-[#2D2D3F] rounded-2xl p-6 sm:p-7 shadow-sm card-hover border-l-4 border-[#3EC1D3]" data-reveal data-reveal-delay="300">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#3EC1D3]/20 to-[#7EBF8E]/20 flex items-center justify-center feature-icon">
+                <svg class="w-6 h-6 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
+            </div>
+            <div>
+                <h4 class="font-['Cormorant_Garamond',serif] text-lg font-semibold text-[#8B4557] dark:text-gray-100">多渠道通知</h4>
+                <p class="text-xs text-gray-400">邮件、ServerChan 等</p>
+            </div>
+        </div>
+        <p class="text-gray-400 dark:text-gray-500 text-sm leading-relaxed ml-[60px]">邮件、ServerChan 等多渠道提醒，确保你不会错过任何重要日子。</p>
     </div>
 </div>
 {% endblock %}

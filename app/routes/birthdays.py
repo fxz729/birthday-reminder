@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy.orm import Session
 from typing import List
+from datetime import datetime
+import logging
 
 from app.database import get_db
 from app import crud
@@ -9,6 +11,7 @@ from app.schemas import BirthdayCreate, BirthdayUpdate, BirthdayResponse
 from app.middleware.auth import get_optional_user, get_current_user
 from app.template_setup import templates
 from app.models import User
+from app.services.import_export import export_birthdays_to_csv, export_birthdays_to_txt
 
 router = APIRouter(prefix="/birthdays", tags=["birthdays"])
 
@@ -52,9 +55,10 @@ async def create_birthday(
     form_data = await request.form()
 
     try:
+        birth_date = f"2000-{form_data['birth_month']}-{form_data['birth_day']}"
         birthday_data = BirthdayCreate(
             name=form_data["name"],
-            birth_date=form_data["birth_date"],
+            birth_date=birth_date,
             is_lunar=form_data.get("is_lunar") == "on",
             email=form_data["email"],
             gift_idea=form_data.get("gift_idea") or None,
@@ -62,10 +66,12 @@ async def create_birthday(
         )
         crud.create_birthday(db, birthday_data, user_id=current_user.id)
         return RedirectResponse(url="/birthdays", status_code=303)
-    except Exception as e:
+    except Exception:
+        logger = logging.getLogger(__name__)
+        logger.exception("创建生日记录失败")
         return templates.TemplateResponse(
             "birthday_form.html",
-            {"request": request, "birthday": None, "errors": str(e), "user": current_user},
+            {"request": request, "birthday": None, "errors": "数据验证失败，请检查输入", "user": current_user},
             status_code=400,
         )
 
@@ -104,9 +110,10 @@ async def update_birthday(
     form_data = await request.form()
 
     try:
+        birth_date = f"2000-{form_data['birth_month']}-{form_data['birth_day']}"
         birthday_data = BirthdayUpdate(
             name=form_data["name"],
-            birth_date=form_data["birth_date"],
+            birth_date=birth_date,
             is_lunar=form_data.get("is_lunar") == "on",
             email=form_data["email"],
             gift_idea=form_data.get("gift_idea") or None,
@@ -114,10 +121,12 @@ async def update_birthday(
         )
         crud.update_birthday(db, birthday_id, birthday_data, user_id=current_user.id)
         return RedirectResponse(url="/birthdays", status_code=303)
-    except Exception as e:
+    except Exception:
+        logger = logging.getLogger(__name__)
+        logger.exception("更新生日记录失败")
         return templates.TemplateResponse(
             "birthday_form.html",
-            {"request": request, "birthday": birthday, "errors": str(e), "user": current_user},
+            {"request": request, "birthday": birthday, "errors": "数据验证失败，请检查输入", "user": current_user},
             status_code=400,
         )
 
@@ -133,6 +142,35 @@ async def delete_birthday(
     if not crud.delete_birthday(db, birthday_id, user_id=current_user.id):
         raise HTTPException(status_code=404, detail="生日不存在")
     return RedirectResponse(url="/birthdays", status_code=303)
+
+
+@router.get("/export")
+async def export_birthdays(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_optional_user),
+    format: str = "csv",
+):
+    if not current_user:
+        return RedirectResponse(url="/auth/login", status_code=302)
+
+    if format == "txt":
+        content = export_birthdays_to_txt(db, current_user.id)
+        media_type = "text/plain; charset=utf-8"
+        filename = f"birthdays_{datetime.now().strftime('%Y%m%d')}.txt"
+    elif format == "csv":
+        content = export_birthdays_to_csv(db, current_user.id)
+        media_type = "text/csv; charset=utf-8"
+        filename = f"birthdays_{datetime.now().strftime('%Y%m%d')}.csv"
+    else:
+        raise HTTPException(status_code=400, detail="不支持的导出格式")
+
+    from fastapi.responses import Response
+    return Response(
+        content=content,
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @router.get("/api/", response_model=List[BirthdayResponse])
