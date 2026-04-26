@@ -103,21 +103,12 @@ def get_upcoming_birthday_date(birth_date: date, is_lunar: bool, target_year: in
         target_year = date.today().year
 
     if is_lunar:
-        solar = Solar.fromYmd(birth_date.year, birth_date.month, birth_date.day)
-        lunar = solar.getLunar()
         try:
-            lunar_birthday = Lunar.fromYmd(target_year, lunar.getMonth(), lunar.getDay())
+            # birth_date.month/day 直接就是农历月日，无需经过公历转换
+            lunar_birthday = Lunar.fromYmd(target_year, birth_date.month, birth_date.day)
             solar_birthday = lunar_birthday.getSolar()
             return date(solar_birthday.getYear(), solar_birthday.getMonth(), solar_birthday.getDay())
         except ValueError:
-            # 闰月情况
-            if lunar.getMonth() < 0:
-                try:
-                    lunar_birthday = Lunar.fromYmd(target_year, lunar.getMonth(), lunar.getDay())
-                    solar_birthday = lunar_birthday.getSolar()
-                    return date(solar_birthday.getYear(), solar_birthday.getMonth(), solar_birthday.getDay())
-                except ValueError:
-                    return None
             return None
     else:
         return date(target_year, birth_date.month, birth_date.day)
@@ -211,16 +202,15 @@ def get_birthday_info(birth_date: date, is_lunar: bool, check_date: date = None)
     info['lunar_match'] = False
 
     if is_lunar:
-        solar = Solar.fromYmd(birth_date.year, birth_date.month, birth_date.day)
-        birth_lunar = solar.getLunar()
         check_lunar = Lunar.fromYmd(
             check_date.year,
             check_date.month,
             check_date.day
         )
-        if (birth_lunar.getMonth() == check_lunar.getMonth()
-                and birth_lunar.getDay() == check_lunar.getDay()):
+        if (birth_date.month == check_lunar.getMonth()
+                and birth_date.day == check_lunar.getDay()):
             info['lunar_match'] = True
+            birth_lunar = Lunar.fromYmd(birth_date.year, birth_date.month, birth_date.day)
             info['zodiac'] = birth_lunar.getYearShengXiao()
     else:
         if (birth_date.month == check_date.month
