@@ -3,95 +3,186 @@
 {% block title %}{{ birthday.name }} - 提醒配置{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>🔔 {{ birthday.name }} 的提醒配置</h2>
+<div class="max-w-3xl mx-auto fade-in-up">
+    <!-- Context Header -->
+    <div class="bg-gradient-to-br from-[#FF6B6B] via-[#FFA07A] to-[#FFD700] rounded-2xl p-6 sm:p-8 mb-6 text-white relative overflow-hidden">
+        <div class="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-white/10 pointer-events-none"></div>
+        <div class="absolute -bottom-8 -left-8 w-24 h-24 rounded-full bg-white/5 pointer-events-none"></div>
+        <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-1">
+                <span class="text-3xl">🔔</span>
+                <h1 class="font-['Cormorant_Garamond',serif] text-2xl sm:text-3xl font-semibold text-white">
+                    {{ birthday.name }} 的提醒配置
+                </h1>
+            </div>
+            <p class="text-white/80 text-sm mt-1">设置生日提醒方式和时间</p>
+        </div>
+    </div>
 
+    <!-- Success Toast -->
     {% if success %}
-    <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 6px; margin-bottom: 20px;">
-        ✅ 提醒配置已保存
+    <div class="flex items-center gap-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 px-4 py-3 rounded-xl mb-6 text-sm fade-in-up">
+        <span>✅</span>
+        <span>提醒配置已保存</span>
     </div>
     {% endif %}
 
-    <form method="post">
-        <table>
-            <thead>
-                <tr>
-                    <th>提醒时机</th>
-                    <th>通知方式</th>
-                    <th>发送时间</th>
-                    <th>自定义模板</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for preset in presets %}
-                <tr>
-                    <td>
-                        <label style="display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox"
-                                   name="reminder_{{ preset.days_before }}"
-                                   id="reminder_{{ preset.days_before }}"
-                                   {% if preset.days_before in [0, 7] %}checked{% endif %}>
+    <!-- Form -->
+    <form method="post" class="space-y-4">
+        {% for preset in presets %}
+        <div class="bg-white dark:bg-[#2D2D3F] rounded-xl p-5 sm:p-6 shadow-sm card-hover" x-data="{ enabled: {{ 'true' if preset.days_before in [0, 7] else 'false' }} }">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                <!-- Toggle + Label -->
+                <div class="flex items-center gap-3 min-w-[160px]">
+                    <!-- iOS-style Toggle -->
+                    <input type="checkbox" name="reminder_{{ preset.days_before }}"
+                           id="reminder_{{ preset.days_before }}"
+                           class="toggle-checkbox hidden"
+                           x-model="enabled"
+                           {% if preset.days_before in [0, 7] %}checked{% endif %}>
+                    <label :for="'reminder_{{ preset.days_before }}'" class="toggle-label cursor-pointer" @click.prevent="enabled = !enabled" :class="enabled ? '!bg-[#FF6B6B]' : ''">
+                        <span class="toggle-dot" :class="enabled ? 'translate-x-full' : ''"></span>
+                    </label>
+                    <div>
+                        <label :for="'reminder_{{ preset.days_before }}'" class="text-sm font-semibold text-gray-700 dark:text-gray-200 cursor-pointer select-none" @click="enabled = !enabled">
                             {{ preset.label }}
                         </label>
-                    </td>
-                    <td>
-                        <select name="notify_type_{{ preset.days_before }}" style="width: 140px; padding: 6px;">
-                            <option value="email" {% if preset.days_before in [0, 7] %}selected{% endif %}>📧 邮件</option>
-                            {% if serverchan_enabled %}
-                            <option value="serverchan">📱 ServerChan</option>
-                            {% endif %}
-                        </select>
-                    </td>
-                    <td>
-                        <input type="text"
-                               name="cron_{{ preset.days_before }}"
-                               value="{{ preset.cron_time }}"
-                               placeholder="0 9 * * *"
-                               style="width: 120px;">
-                        <small style="color: #666;">分 时 日 月 周</small>
-                    </td>
-                    <td>
-                        <input type="text"
-                               name="template_{{ preset.days_before }}"
-                               placeholder="可选，自定义模板"
-                               style="width: 300px;">
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        <p class="text-xs text-gray-400 dark:text-gray-500">提前 {{ preset.days_before }} 天</p>
+                    </div>
+                </div>
 
-        <div class="mt-2">
-            <button type="submit" class="btn btn-primary">保存配置</button>
-            <a href="/birthdays" class="btn btn-secondary">返回列表</a>
+                <!-- Notification Type -->
+                <div class="flex-1 min-w-[140px]">
+                    <label class="text-xs text-gray-400 dark:text-gray-500 mb-1 block">通知方式</label>
+                    <select name="notify_type_{{ preset.days_before }}"
+                            class="w-full px-3 py-2 rounded-lg border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 text-sm focus:outline-none focus:border-[#FF6B6B] transition-all"
+                            :disabled="!enabled">
+                        <option value="email" {% if preset.days_before in [0, 7] %}selected{% endif %}>📧 邮件</option>
+                        {% if serverchan_enabled %}
+                        <option value="serverchan">📱 ServerChan</option>
+                        {% endif %}
+                    </select>
+                </div>
+
+                <!-- Cron Time -->
+                <div class="flex-1 min-w-[140px]">
+                    <label class="text-xs text-gray-400 dark:text-gray-500 mb-1 block">发送时间 (Cron)</label>
+                    <input type="text" name="cron_{{ preset.days_before }}"
+                           value="{{ preset.cron_time }}"
+                           placeholder="0 9 * * *"
+                           class="w-full px-3 py-2 rounded-lg border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 text-sm focus:outline-none focus:border-[#FF6B6B] transition-all font-mono"
+                           :disabled="!enabled">
+                </div>
+            </div>
+
+            <!-- Expandable: Custom Template -->
+            <div x-show="enabled" x-collapse.duration.200ms class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                <label class="text-xs text-gray-400 dark:text-gray-500 mb-1.5 block">自定义模板（可选）</label>
+                <input type="text" name="template_{{ preset.days_before }}"
+                       placeholder="使用默认模板"
+                       class="w-full px-3 py-2 rounded-lg border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 text-sm focus:outline-none focus:border-[#FF6B6B] transition-all">
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Save Button -->
+        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+            <button type="submit" class="flex-1 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#FF6B6B] to-[#FFA07A] hover:shadow-lg hover:shadow-[#FF6B6B]/30 hover:-translate-y-0.5 transition-all btn-ripple">
+                💾 保存配置
+            </button>
+            <a href="/birthdays" class="flex-1 text-center px-6 py-3 rounded-xl text-sm font-semibold text-[#FF6B6B] border-2 border-[#FF6B6B]/30 hover:bg-[#FFE8E8] dark:hover:bg-[#FF6B6B]/10 transition-all">
+                📋 返回列表
+            </a>
         </div>
     </form>
 
-    <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
-        <h4>📖 Cron 表达式说明</h4>
-        <ul style="margin-left: 20px; color: #666; line-height: 1.8;">
-            <li><code>0 9 * * *</code> - 每天早上9点</li>
-            <li><code>0 9 * * 1</code> - 每周一早上9点</li>
-            <li><code>30 8 * * *</code> - 每天早上8:30</li>
-            <li><code>0 18 * * *</code> - 每天下午6点</li>
-        </ul>
+    <!-- Template Variable Reference -->
+    <div x-data="{ open: false }" class="mt-6">
+        <button @click="open = !open" class="w-full flex items-center justify-between px-5 py-3.5 rounded-xl bg-white dark:bg-[#2D2D3F] shadow-sm hover:shadow-md transition-all text-left">
+            <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">📖 Cron & 模板变量参考</span>
+            <svg class="w-4 h-4 text-gray-400 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div x-show="open" x-collapse.duration.200ms class="mt-3">
+            <div class="bg-white dark:bg-[#2D2D3F] rounded-xl p-5 sm:p-6 shadow-sm">
+                <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Cron 表达式说明</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">
+                    <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">0 9 * * *</code>
+                        <span>每天早上9点</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">0 9 * * 1</code>
+                        <span>每周一早上9点</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">30 8 * * *</code>
+                        <span>每天早上8:30</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">0 18 * * *</code>
+                        <span>每天下午6点</span>
+                    </div>
+                </div>
 
-        <h4 style="margin-top: 15px;">📝 模板变量</h4>
-        <ul style="margin-left: 20px; color: #666; line-height: 1.8;">
-            <li><code>{{ "{{name}}" }}</code> - 生日对象姓名</li>
-            <li><code>{{ "{{date}}" }}</code> - 生日日期</li>
-            <li><code>{{ "{{age}}" }}</code> - 年龄</li>
-            <li><code>{{ "{{days_left}}" }}</code> - 距离生日天数</li>
-            <li><code>{{ "{{zodiac}}" }}</code> - 生肖</li>
-            <li><code>{{ "{{constellation}}" }}</code> - 星座</li>
-            <li><code>{{ "{{gz_year}}" }}</code> - 干支纪年</li>
-            <li><code>{{ "{{gz_month}}" }}</code> - 干支纪月</li>
-            <li><code>{{ "{{gz_day}}" }}</code> - 干支纪日</li>
-            <li><code>{{ "{{solar_term}}" }}</code> - 节气</li>
-            <li><code>{{ "{{lunar_festival}}" }}</code> - 农历节日</li>
-            <li><code>{{ "{{solar_festival}}" }}</code> - 阳历节日</li>
-            <li><code>{{ "{{gift_idea}}" }}</code> - 礼物建议</li>
-        </ul>
+                <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">模板变量</h4>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">{{ '{{name}}' }}</code>
+                        <span>姓名</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">{{ '{{date}}' }}</code>
+                        <span>生日日期</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">{{ '{{age}}' }}</code>
+                        <span>年龄</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">{{ '{{days_left}}' }}</code>
+                        <span>剩余天数</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">{{ '{{zodiac}}' }}</code>
+                        <span>生肖</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">{{ '{{constellation}}' }}</code>
+                        <span>星座</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">{{ '{{gz_year}}' }}</code>
+                        <span>干支纪年</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">{{ '{{gz_month}}' }}</code>
+                        <span>干支纪月</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">{{ '{{gz_day}}' }}</code>
+                        <span>干支纪日</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">{{ '{{solar_term}}' }}</code>
+                        <span>节气</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">{{ '{{lunar_festival}}' }}</code>
+                        <span>农历节日</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">{{ '{{solar_festival}}' }}</code>
+                        <span>阳历节日</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                        <code class="text-[#FF6B6B] font-mono">{{ '{{gift_idea}}' }}</code>
+                        <span>礼物建议</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

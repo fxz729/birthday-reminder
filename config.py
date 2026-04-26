@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 from functools import lru_cache
+from typing import List
 
 
 class Settings(BaseSettings):
@@ -22,13 +23,21 @@ class Settings(BaseSettings):
     # ServerChan 配置
     serverchan_sckey: str = ""
 
+    # JWT 配置
+    secret_key: str = "change-this-to-a-random-secret-key"
+    jwt_algorithm: str = "HS256"
+    access_token_expire_hours: int = 24
+
     # 应用
     app_name: str = "生日定时提醒"
     debug: bool = False
+    base_url: str = "http://localhost:8000"
+    cors_origins: List[str] = ["http://localhost:8000"]
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"
 
 
 @lru_cache()

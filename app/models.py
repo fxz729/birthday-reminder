@@ -79,3 +79,22 @@ class Reminder(Base):
     notification_type = Column(String(20), default="email")  # email / serverchan
 
     birthday = relationship("Birthday", back_populates="reminders")
+
+
+class NotificationLog(Base):
+    """通知发送历史"""
+    __tablename__ = "notification_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    birthday_id = Column(Integer, ForeignKey("birthdays.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    reminder_id = Column(Integer, ForeignKey("reminders.id"), nullable=True)
+    notification_type = Column(String(20), nullable=False)  # email / serverchan
+    recipient = Column(String(255), nullable=False)  # 收件地址
+    subject = Column(String(255), nullable=True)
+    status = Column(String(20), default="success")  # success / failed
+    error_message = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    birthday = relationship("Birthday")
+    user = relationship("User")

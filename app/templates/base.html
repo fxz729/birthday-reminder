@@ -1,519 +1,73 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" x-data="{ mobileMenuOpen: false }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}生日提醒{% endblock %} | Birthday Wishes</title>
 
-    <!-- Fonts -->
+    <!-- Anti-flicker: Restore dark mode before render -->
+    <script>
+        if (localStorage.theme === 'dark' || (!localStorage.theme && window.matchMedia('(prefers-color-scheme:dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+
+    <!-- Google Fonts Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Quicksand:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS via Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js via CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/css/app.css">
 
     <style>
-        :root {
-            /* Color Palette - Warm Romantic */
-            --coral: #FF6B6B;
-            --coral-light: #FFE8E8;
-            --peach: #FFA07A;
-            --gold: #FFD700;
-            --gold-muted: #E6BE8A;
-            --cream: #FFF9F5;
-            --rose: #FFB6C1;
-            --blush: #F8E8E8;
-            --plum: #8B4557;
-            --text-dark: #2D2D2D;
-            --text-muted: #6B6B6B;
-
-            /* Gradients */
-            --gradient-warm: linear-gradient(135deg, #FF6B6B 0%, #FFA07A 50%, #FFD700 100%);
-            --gradient-soft: linear-gradient(135deg, #FFE8E8 0%, #FFF9F5 100%);
-            --gradient-card: linear-gradient(145deg, #FFFFFF 0%, #FFF9F5 100%);
-
-            /* Shadows */
-            --shadow-soft: 0 4px 20px rgba(255, 107, 107, 0.15);
-            --shadow-hover: 0 8px 30px rgba(255, 107, 107, 0.25);
-            --shadow-glow: 0 0 40px rgba(255, 107, 107, 0.3);
-
-            /* Spacing */
-            --space-xs: 0.5rem;
-            --space-sm: 1rem;
-            --space-md: 1.5rem;
-            --space-lg: 2rem;
-            --space-xl: 3rem;
-
-            /* Border Radius */
-            --radius-sm: 8px;
-            --radius-md: 16px;
-            --radius-lg: 24px;
-            --radius-xl: 32px;
-            --radius-full: 9999px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Quicksand', sans-serif;
-            background: var(--cream);
-            color: var(--text-dark);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Decorative Background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background:
-                radial-gradient(circle at 10% 20%, rgba(255, 182, 193, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 90% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, rgba(255, 107, 107, 0.05) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        /* Floating Particles */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: var(--coral);
-            border-radius: 50%;
-            opacity: 0.3;
-            animation: float 20s infinite ease-in-out;
-        }
-
-        .particle:nth-child(1) { left: 10%; animation-delay: 0s; background: var(--rose); }
-        .particle:nth-child(2) { left: 20%; animation-delay: 2s; background: var(--gold); width: 6px; height: 6px; }
-        .particle:nth-child(3) { left: 35%; animation-delay: 4s; background: var(--coral); }
-        .particle:nth-child(4) { left: 50%; animation-delay: 6s; background: var(--peach); width: 10px; height: 10px; }
-        .particle:nth-child(5) { left: 65%; animation-delay: 8s; background: var(--rose); }
-        .particle:nth-child(6) { left: 80%; animation-delay: 10s; background: var(--gold); width: 5px; height: 5px; }
-        .particle:nth-child(7) { left: 90%; animation-delay: 12s; background: var(--coral); }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.4; }
-            90% { opacity: 0.4; }
-            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
-        }
-
-        /* Header */
-        header {
-            background: var(--gradient-warm);
-            padding: var(--space-lg) 0;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            opacity: 0.5;
-        }
-
-        header h1 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2.5rem;
-            font-weight: 600;
-            color: white;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: relative;
-            animation: fadeInDown 0.8s ease-out;
-        }
-
-        header h1::before {
-            content: '🎂';
-            margin-right: 0.5rem;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Navigation */
-        nav {
-            background: white;
-            padding: var(--space-sm) 0;
-            box-shadow: var(--shadow-soft);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            justify-content: center;
-            gap: var(--space-lg);
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 var(--space-md);
-        }
-
-        nav a {
-            text-decoration: none;
-            color: var(--text-muted);
-            font-weight: 500;
-            font-size: 0.95rem;
-            padding: var(--space-xs) var(--space-sm);
-            border-radius: var(--radius-full);
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        nav a:hover {
-            color: var(--coral);
-            background: var(--coral-light);
-        }
-
-        nav a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: var(--coral);
-            transition: all 0.3s ease;
-            transform: translateX(-50%);
-        }
-
-        nav a:hover::after {
-            width: 80%;
-        }
-
-        /* Main Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: var(--space-xl) var(--space-md);
-        }
-
-        /* Cards */
-        .card {
-            background: var(--gradient-card);
-            border-radius: var(--radius-lg);
-            padding: var(--space-lg);
-            box-shadow: var(--shadow-soft);
-            margin-bottom: var(--space-lg);
-            border: 1px solid rgba(255, 107, 107, 0.1);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        .card:hover {
-            box-shadow: var(--shadow-hover);
-            transform: translateY(-4px);
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Typography */
-        h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: var(--plum);
-            margin-bottom: var(--space-md);
-        }
-
-        h3 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.3rem;
-            font-weight: 500;
-            color: var(--text-dark);
-        }
-
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: var(--radius-full);
-            font-family: 'Quicksand', sans-serif;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .btn-primary {
-            background: var(--gradient-warm);
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: var(--coral);
-            border: 2px solid var(--coral);
-        }
-
-        .btn-secondary:hover {
-            background: var(--coral);
-            color: white;
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
-        }
-
-        .btn-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.8rem;
-        }
-
-        /* Form Elements */
-        .form-group {
-            margin-bottom: var(--space-md);
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 500;
-            color: var(--text-dark);
-            margin-bottom: var(--space-xs);
-            font-size: 0.9rem;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            border: 2px solid rgba(255, 107, 107, 0.2);
-            border-radius: var(--radius-md);
-            font-family: 'Quicksand', sans-serif;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--coral);
-            box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
-        }
-
-        /* Tables */
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-
-        thead th {
-            background: linear-gradient(135deg, var(--coral-light) 0%, var(--blush) 100%);
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            color: var(--plum);
-            border-bottom: 2px solid var(--coral);
-        }
-
-        thead th:first-child {
-            border-radius: var(--radius-sm) 0 0 0;
-        }
-
-        thead th:last-child {
-            border-radius: 0 var(--radius-sm) 0 0;
-        }
-
-        tbody tr {
-            transition: all 0.3s ease;
-        }
-
-        tbody tr:hover {
-            background: var(--coral-light);
-        }
-
-        tbody td {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(255, 107, 107, 0.1);
-        }
-
-        tbody tr:last-child td:first-child {
-            border-radius: 0 0 0 var(--radius-sm);
-        }
-
-        tbody tr:last-child td:last-child {
-            border-radius: 0 0 var(--radius-sm) 0;
-        }
-
-        /* Badges */
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.25rem 0.75rem;
-            border-radius: var(--radius-full);
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .badge-lunar {
-            background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
-            color: #2E7D32;
-        }
-
-        .badge-solar {
-            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
-            color: #1565C0;
-        }
-
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: var(--space-xl) var(--space-md);
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
-        footer span {
-            color: var(--coral);
-        }
-
-        /* Utility Classes */
-        .text-center { text-align: center; }
-        .text-muted { color: var(--text-muted); }
-        .mt-2 { margin-top: var(--space-lg); }
-        .mt-4 { margin-top: var(--space-xl); }
-
-        /* Grid Layout */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--space-md);
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: var(--radius-md);
-            padding: var(--space-lg);
-            text-align: center;
-            box-shadow: var(--shadow-soft);
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .stat-card h3 {
-            font-size: 2.5rem;
-            color: var(--coral);
-            margin-bottom: 0.5rem;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: var(--space-xl);
-            color: var(--text-muted);
-        }
-
-        .empty-state::before {
-            content: '🎁';
-            display: block;
-            font-size: 4rem;
-            margin-bottom: var(--space-md);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            header h1 { font-size: 1.8rem; }
-            nav ul { flex-wrap: wrap; gap: var(--space-sm); }
-            .container { padding: var(--space-md); }
-            .card { padding: var(--space-md); }
-            table { font-size: 0.85rem; }
-            thead th, tbody td { padding: 0.75rem 0.5rem; }
-        }
-
-        {% block extra_css %}{% endblock %}
+        /* Tailwind custom config via CDN */
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'serif-heading': ['Cormorant Garamond', 'serif'],
+                        'sans-body': ['Quicksand', 'sans-serif'],
+                        'serif-cn': ['Noto Serif SC', 'serif'],
+                        'sans-cn': ['Noto Sans SC', 'sans-serif'],
+                    },
+                    colors: {
+                        coral: {
+                            DEFAULT: '#FF6B6B',
+                            light: '#FFE8E8',
+                        },
+                        peach: '#FFA07A',
+                        gold: '#FFD700',
+                        cream: '#FFF9F5',
+                        deep: '#8B4557',
+                        'dark-bg': '#1E1E2E',
+                        'dark-card': '#2D2D3F',
+                        sage: '#7EBF8E',
+                        sky: '#7EC8E3',
+                    },
+                },
+            },
+        };
+    </script>
+
+    <style>
+        [x-cloak] { display: none !important; }
     </style>
+
+    {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body class="bg-cream dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 font-['Quicksand','Noto+Sans+SC',sans-serif] min-h-screen transition-colors">
+
     <!-- Floating Particles -->
-    <div class="particles">
+    <div class="particles" aria-hidden="true">
+        <div class="particle"></div>
         <div class="particle"></div>
         <div class="particle"></div>
         <div class="particle"></div>
@@ -523,27 +77,106 @@
         <div class="particle"></div>
     </div>
 
-    <header>
-        <h1>Birthday Wishes</h1>
-    </header>
+    <!-- Toast Container -->
+    {% include "components/toast.html" %}
 
-    <nav>
-        <ul>
-            <li><a href="/birthdays">生日列表</a></li>
-            <li><a href="/birthdays/add">添加生日</a></li>
-            {% if user %}
-            <li><a href="/auth/dashboard">控制台</a></li>
-            {% endif %}
-        </ul>
+    <!-- Confirm Modal -->
+    {% include "components/confirm_modal.html" %}
+
+    <!-- ======== Navbar ======== -->
+    <nav class="sticky top-0 z-40 glass border-b border-[#FF6B6B]/10 dark:border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+
+                <!-- Logo -->
+                <a href="/" class="flex items-center gap-2 text-lg font-semibold font-['Cormorant_Garamond',serif] text-gray-800 dark:text-gray-100 hover:text-[#FF6B6B] dark:hover:text-[#FF6B6B] transition-colors">
+                    <span class="text-xl">🎂</span>
+                    <span class="hidden sm:inline">Birthday Wishes</span>
+                </a>
+
+                <!-- Desktop Nav Links -->
+                <div class="hidden md:flex items-center gap-1">
+                    <a href="/auth/dashboard" class="px-4 py-2 rounded-full text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-[#FF6B6B] hover:bg-[#FFE8E8] dark:hover:bg-[#FF6B6B]/10 transition-all">
+                        控制台
+                    </a>
+                    <a href="/birthdays" class="px-4 py-2 rounded-full text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-[#FF6B6B] hover:bg-[#FFE8E8] dark:hover:bg-[#FF6B6B]/10 transition-all">
+                        生日簿
+                    </a>
+                </div>
+
+                <!-- Right Section -->
+                <div class="flex items-center gap-2">
+                    <!-- Dark Mode Toggle -->
+                    <button onclick="window.theme.toggle()" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-[#FFE8E8] dark:hover:bg-[#FF6B6B]/10 transition-all" aria-label="切换主题">
+                        <svg x-show="!window.theme || !window.theme.isDark" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                        <svg x-show="window.theme && window.theme.isDark" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="display:none">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                        </svg>
+                    </button>
+
+                    {% set cu = current_user(request) %}
+                    {% if cu %}
+                    <!-- User Info -->
+                    <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FFE8E8] dark:bg-[#FF6B6B]/10 text-sm font-medium text-[#8B4557] dark:text-[#FFB6C1]">
+                        <span>👤</span>
+                        <span>{{ cu.username }}</span>
+                    </div>
+                    <form action="/auth/logout" method="post" class="inline">
+                        <button type="submit" class="px-4 py-2 rounded-full text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-[#FF6B6B] hover:bg-[#FFE8E8] dark:hover:bg-[#FF6B6B]/10 transition-all">
+                            退出
+                        </button>
+                    </form>
+                    {% else %}
+                    <a href="/auth/login" class="px-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#FF6B6B] to-[#FFA07A] hover:shadow-lg hover:shadow-[#FF6B6B]/30 transition-all btn-ripple">
+                        登录
+                    </a>
+                    {% endif %}
+
+                    <!-- Mobile Menu Toggle -->
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-[#FFE8E8] dark:hover:bg-[#FF6B6B]/10 transition-all" aria-label="菜单">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                            <path x-show="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" style="display:none"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div x-show="mobileMenuOpen" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2" class="md:hidden pb-4 border-t border-[#FF6B6B]/10 dark:border-white/5 mt-2 pt-3">
+                <div class="flex flex-col gap-1">
+                    <a href="/auth/dashboard" @click="mobileMenuOpen = false" class="px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-[#FF6B6B] hover:bg-[#FFE8E8] dark:hover:bg-[#FF6B6B]/10 transition-all">
+                        📊 控制台
+                    </a>
+                    <a href="/birthdays" @click="mobileMenuOpen = false" class="px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-[#FF6B6B] hover:bg-[#FFE8E8] dark:hover:bg-[#FF6B6B]/10 transition-all">
+                        📖 生日簿
+                    </a>
+                    {% if cu %}
+                    <div class="px-4 py-2.5 text-sm text-gray-400 dark:text-gray-500 border-t border-[#FF6B6B]/10 dark:border-white/5 mt-2 pt-3">
+                        👤 {{ cu.username }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </nav>
 
-    <main class="container">
-        {% block content %}{% endblock %}
+    <!-- ======== Main Content ======== -->
+    <main class="min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
-    <footer>
-        <p>用心记住每一个重要的日子 <span>♥</span></p>
+    <!-- ======== Footer ======== -->
+    <footer class="text-center py-8 text-gray-400 dark:text-gray-500 text-sm">
+        <p>用心记住每一个重要的日子 <span class="text-[#FF6B6B]">♥</span></p>
     </footer>
+
+    <!-- Custom JavaScript -->
+    <script src="/static/js/main.js"></script>
 
     {% block extra_js %}{% endblock %}
 </body>

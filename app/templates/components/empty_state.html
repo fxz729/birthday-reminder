@@ -1,0 +1,18 @@
+<div class="text-center py-12">
+    <div class="text-6xl mb-6 animate-pulse">
+        {% if icon %}{{ icon }}{% else %}🎁{% endif %}
+    </div>
+    <h3 class="text-xl font-semibold text-gray-500 dark:text-gray-400 mb-3 font-['Quicksand']">
+        {{ message }}
+    </h3>
+    {% if description %}
+    <p class="text-gray-400 dark:text-gray-500 mb-6 max-w-md mx-auto text-sm leading-relaxed">
+        {{ description }}
+    </p>
+    {% endif %}
+    {% if action_url and action_text %}
+    <a href="{{ action_url }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#FF6B6B] to-[#FFA07A] hover:shadow-lg hover:shadow-[#FF6B6B]/30 transition-all btn-ripple">
+        {{ action_icon|default('') }} {{ action_text }}
+    </a>
+    {% endif %}
+</div>

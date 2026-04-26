@@ -2,191 +2,231 @@
 
 {% block title %}注册{% endblock %}
 
-{% block extra_css %}
+{% block extra_head %}
 <style>
-    .auth-container {
-        min-height: 80vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
+    .deco-float {
+        animation: decoDrift 6s ease-in-out infinite;
     }
-
-    .auth-card {
-        background: white;
-        border-radius: 24px;
-        padding: 3rem;
-        width: 100%;
-        max-width: 450px;
-        box-shadow: 0 20px 60px rgba(255, 107, 107, 0.2);
-        position: relative;
-        overflow: hidden;
-        animation: slideUp 0.6s ease-out;
+    @keyframes decoDrift {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        33% { transform: translateY(-10px) rotate(5deg); }
+        66% { transform: translateY(5px) rotate(-3deg); }
     }
-
-    @keyframes slideUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .auth-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 6px;
-        background: linear-gradient(90deg, var(--gold), var(--peach), var(--coral));
-    }
-
-    .auth-card h2 {
-        text-align: center;
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 2rem;
-        color: var(--plum);
-        margin-bottom: 0.5rem;
-    }
-
-    .auth-card .subtitle {
-        text-align: center;
-        color: var(--text-muted);
-        margin-bottom: 2rem;
-        font-size: 0.95rem;
-    }
-
-    .form-group {
-        margin-bottom: 1.25rem;
-    }
-
-    .form-group label {
-        display: block;
-        font-weight: 600;
-        color: var(--text-dark);
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-    }
-
-    .form-group input {
-        width: 100%;
-        padding: 1rem 1.25rem;
-        border: 2px solid rgba(255, 107, 107, 0.15);
-        border-radius: 12px;
-        font-family: 'Quicksand', sans-serif;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .form-group input:focus {
-        outline: none;
-        border-color: var(--coral);
-        box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
-    }
-
-    .btn-submit {
-        width: 100%;
-        padding: 1rem;
-        background: linear-gradient(135deg, var(--gold) 0%, var(--peach) 100%);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-family: 'Quicksand', sans-serif;
-        font-weight: 600;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 1rem;
-    }
-
-    .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
-    }
-
-    .auth-footer {
-        text-align: center;
-        margin-top: 2rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid rgba(255, 107, 107, 0.1);
-        color: var(--text-muted);
-    }
-
-    .auth-footer a {
-        color: var(--coral);
-        text-decoration: none;
-        font-weight: 600;
-    }
-
-    .auth-footer a:hover {
-        text-decoration: underline;
-    }
-
-    .error-message {
-        background: linear-gradient(135deg, #FFE8E8 0%, #FFF0F0 100%);
-        color: var(--coral);
-        padding: 1rem;
-        border-radius: 12px;
-        margin-bottom: 1.5rem;
-        text-align: center;
-        font-size: 0.9rem;
-        border: 1px solid rgba(255, 107, 107, 0.2);
-    }
-
-    .decorative {
-        position: absolute;
-        opacity: 0.1;
-        font-size: 8rem;
-        z-index: 0;
-    }
-
-    .decorative-1 { top: -2rem; right: -2rem; }
-    .decorative-2 { bottom: -2rem; left: -2rem; }
+    .deco-float:nth-child(2) { animation-delay: 1s; }
+    .deco-float:nth-child(3) { animation-delay: 2s; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <span class="decorative decorative-1">🎁</span>
-        <span class="decorative decorative-2">🎉</span>
+<div class="min-h-[calc(100vh-8rem)] flex items-center justify-center py-8">
+    <div class="w-full max-w-md relative">
 
-        <h2>创建账户</h2>
-        <p class="subtitle">开启您的生日提醒之旅</p>
+        <!-- Floating decorative emojis -->
+        <span class="deco-float absolute -top-8 -left-8 text-4xl opacity-20 dark:opacity-10 pointer-events-none">🎁</span>
+        <span class="deco-float absolute -bottom-6 -right-6 text-3xl opacity-20 dark:opacity-10 pointer-events-none">🎉</span>
+        <span class="deco-float absolute top-1/3 -right-10 text-2xl opacity-15 dark:opacity-10 pointer-events-none">🌟</span>
 
-        {% if error %}
-        <div class="error-message">
-            {{ error }}
-        </div>
-        {% endif %}
+        <!-- Auth Card -->
+        <div class="bg-white dark:bg-[#2D2D3F] rounded-2xl shadow-xl shadow-[#FF6B6B]/10 dark:shadow-black/30 overflow-hidden fade-in-up relative">
+            <!-- Gradient accent bar -->
+            <div class="h-1.5 bg-gradient-to-r from-[#FFD700] via-[#FFA07A] to-[#FF6B6B]"></div>
 
-        <form method="POST" action="/auth/register">
-            <div class="form-group">
-                <label for="username">用户名</label>
-                <input type="text" id="username" name="username" required placeholder="选择一个用户名" minlength="3" maxlength="20" autocomplete="username">
+            <div class="p-8 sm:p-10">
+                <!-- App Icon -->
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#FFD700] to-[#FFA07A] text-3xl shadow-lg shadow-[#FFD700]/30 animate-bounce">
+                        🎁
+                    </div>
+                </div>
+
+                <!-- Title -->
+                <h1 class="text-center font-['Cormorant_Garamond',serif] text-3xl font-semibold text-gray-800 dark:text-gray-100 mb-1">
+                    加入我们
+                </h1>
+                <p class="text-center text-gray-400 dark:text-gray-500 text-sm mb-8 font-['Quicksand']">
+                    创建你的生日提醒账号
+                </p>
+
+                <!-- Error Banner -->
+                {% if error %}
+                <div class="flex items-center gap-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl mb-6 text-sm shake">
+                    <span>❌</span>
+                    <span>{{ error }}</span>
+                </div>
+                {% endif %}
+
+                <!-- Register Form -->
+                <form method="POST" action="/auth/register" x-data="registerForm()" @submit.prevent="handleSubmit">
+                    <!-- Username -->
+                    <div class="mb-4">
+                        <label for="username" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">用户名</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">👤</span>
+                            <input type="text" id="username" name="username" x-model="form.username" required
+                                   placeholder="选择一个用户名" minlength="3" maxlength="20" autocomplete="username"
+                                   class="w-full pl-10 pr-4 py-3 rounded-full border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 placeholder-gray-400 text-sm focus:outline-none focus:border-[#FF6B6B] input-glow transition-all"
+                                   :class="{ 'border-red-400': errors.username }">
+                        </div>
+                        <p x-show="errors.username" x-text="errors.username" class="text-red-500 text-xs mt-1 ml-2" style="display:none"></p>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="mb-4">
+                        <label for="email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">邮箱</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">📧</span>
+                            <input type="email" id="email" name="email" x-model="form.email" required
+                                   placeholder="your@email.com" autocomplete="email"
+                                   class="w-full pl-10 pr-4 py-3 rounded-full border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 placeholder-gray-400 text-sm focus:outline-none focus:border-[#FF6B6B] input-glow transition-all"
+                                   :class="{ 'border-red-400': errors.email }">
+                        </div>
+                        <p x-show="errors.email" x-text="errors.email" class="text-red-500 text-xs mt-1 ml-2" style="display:none"></p>
+                    </div>
+
+                    <!-- Password with Strength Bar -->
+                    <div class="mb-4">
+                        <label for="password" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">密码</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔒</span>
+                            <input type="password" id="password" name="password" x-model="form.password" required
+                                   placeholder="至少6位密码" minlength="6" autocomplete="new-password"
+                                   class="w-full pl-10 pr-4 py-3 rounded-full border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 placeholder-gray-400 text-sm focus:outline-none focus:border-[#FF6B6B] input-glow transition-all"
+                                   :class="{ 'border-red-400': errors.password }">
+                        </div>
+                        <!-- Strength Bar -->
+                        <div x-show="form.password.length > 0" class="mt-2" style="display:none">
+                            <div class="h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                                <div class="h-full rounded-full transition-all duration-300"
+                                     :class="strengthBarClass"
+                                     :style="'width: ' + strength.score + '%'"></div>
+                            </div>
+                            <p class="text-xs mt-1 ml-1" :class="strengthTextClass" x-text="'密码强度: ' + strength.label"></p>
+                        </div>
+                        <p x-show="errors.password" x-text="errors.password" class="text-red-500 text-xs mt-1 ml-2" style="display:none"></p>
+                    </div>
+
+                    <!-- Confirm Password with Match Indicator -->
+                    <div class="mb-6">
+                        <label for="confirm_password" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">确认密码</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔒</span>
+                            <input type="password" id="confirm_password" name="confirm_password" x-model="form.confirmPassword" required
+                                   placeholder="再次输入密码" autocomplete="new-password"
+                                   class="w-full pl-10 pr-4 py-3 rounded-full border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#1E1E2E] text-gray-800 dark:text-gray-100 placeholder-gray-400 text-sm focus:outline-none focus:border-[#FF6B6B] input-glow transition-all"
+                                   :class="{ 'border-green-400': form.confirmPassword && form.password === form.confirmPassword, 'border-red-400': form.confirmPassword && form.password !== form.confirmPassword }">
+                        </div>
+                        <!-- Match indicator -->
+                        <p x-show="form.confirmPassword && form.password === form.confirmPassword" class="text-green-500 text-xs mt-1 ml-2">
+                            ✅ 密码匹配
+                        </p>
+                        <p x-show="form.confirmPassword && form.password !== form.confirmPassword" class="text-red-500 text-xs mt-1 ml-2">
+                            ❌ 密码不匹配
+                        </p>
+                    </div>
+
+                    <!-- Terms Checkbox -->
+                    <div class="flex items-start gap-2 mb-6">
+                        <input type="checkbox" id="terms" name="terms" x-model="form.terms"
+                               class="w-4 h-4 mt-0.5 rounded border-gray-300 text-[#FF6B6B] focus:ring-[#FF6B6B]">
+                        <label for="terms" class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                            我已阅读并同意 <a href="#" class="text-[#FF6B6B] hover:underline">服务条款</a> 和 <a href="#" class="text-[#FF6B6B] hover:underline">隐私政策</a>
+                        </label>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit"
+                            class="w-full py-3 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#FF6B6B] to-[#FFA07A] hover:shadow-lg hover:shadow-[#FF6B6B]/30 hover:-translate-y-0.5 transition-all btn-ripple disabled:opacity-50 disabled:cursor-not-allowed"
+                            :disabled="!isValid">
+                        注 册
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="flex items-center gap-3 my-6">
+                    <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+                    <span class="text-xs text-gray-400 dark:text-gray-500">或</span>
+                    <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+                </div>
+
+                <!-- Login Link -->
+                <p class="text-center text-sm text-gray-400 dark:text-gray-500">
+                    已有账号？
+                    <a href="/auth/login" class="text-[#FF6B6B] hover:text-[#FFA07A] font-semibold transition-colors">立即登录</a>
+                </p>
             </div>
-
-            <div class="form-group">
-                <label for="email">邮箱</label>
-                <input type="email" id="email" name="email" required placeholder="your@email.com" autocomplete="email">
-            </div>
-
-            <div class="form-group">
-                <label for="password">密码</label>
-                <input type="password" id="password" name="password" required placeholder="至少6位密码" minlength="6" autocomplete="new-password">
-            </div>
-
-            <div class="form-group">
-                <label for="confirm_password">确认密码</label>
-                <input type="password" id="confirm_password" name="confirm_password" required placeholder="再次输入密码" autocomplete="new-password">
-            </div>
-
-            <button type="submit" class="btn-submit">
-                注 册
-            </button>
-        </form>
-
-        <div class="auth-footer">
-            已有账号？<a href="/auth/login">立即登录</a>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function registerForm() {
+        return {
+            form: {
+                username: '',
+                email: '',
+                password: '',
+                confirmPassword: '',
+                terms: false,
+            },
+            errors: {},
+            strength: { level: 'none', score: 0, label: '无' },
+            get isValid() {
+                return this.form.username.length >= 3
+                    && this.form.email.includes('@')
+                    && this.form.password.length >= 6
+                    && this.form.password === this.form.confirmPassword
+                    && this.form.terms;
+            },
+            get strengthBarClass() {
+                const map = {
+                    weak: 'bg-[#FF4757]',
+                    fair: 'bg-[#FFA502]',
+                    good: 'bg-[#7EBF8E]',
+                    strong: 'bg-[#2ED573]',
+                };
+                return map[this.strength.level] || 'bg-gray-200';
+            },
+            get strengthTextClass() {
+                const map = {
+                    weak: 'text-[#FF4757]',
+                    fair: 'text-[#FFA502]',
+                    good: 'text-[#7EBF8E]',
+                    strong: 'text-[#2ED573]',
+                };
+                return map[this.strength.level] || 'text-gray-400';
+            },
+            init() {
+                this.$watch('form.password', val => {
+                    if (window.estimatePasswordStrength) {
+                        this.strength = window.estimatePasswordStrength(val);
+                    }
+                });
+            },
+            handleSubmit() {
+                // Client-side validation
+                this.errors = {};
+                if (this.form.username.length < 3) {
+                    this.errors.username = '用户名至少3个字符';
+                }
+                if (!this.form.email.includes('@')) {
+                    this.errors.email = '请输入有效的邮箱地址';
+                }
+                if (this.form.password.length < 6) {
+                    this.errors.password = '密码长度至少6位';
+                }
+                if (this.form.password !== this.form.confirmPassword) {
+                    this.errors.confirmPassword = '密码不匹配';
+                }
+                if (!this.form.terms) {
+                    return;
+                }
+                if (Object.keys(this.errors).length === 0) {
+                    this.$el.submit();
+                }
+            },
+        };
+    }
+</script>
 {% endblock %}

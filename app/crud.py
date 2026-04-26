@@ -191,3 +191,36 @@ def remove_birthday_from_category(db: Session, birthday_id: int, category_id: in
     )
     db.commit()
     return result.rowcount > 0
+
+
+# 通知日志 CRUD
+def create_notification_log(db: Session, birthday_id: int, user_id: int,
+                             notification_type: str, recipient: str,
+                             status: str = "success", subject: str = None,
+                             error_message: str = None, reminder_id: int = None):
+    """记录通知发送"""
+    from app.models import NotificationLog
+    log = NotificationLog(
+        birthday_id=birthday_id,
+        user_id=user_id,
+        reminder_id=reminder_id,
+        notification_type=notification_type,
+        recipient=recipient,
+        subject=subject,
+        status=status,
+        error_message=error_message,
+    )
+    db.add(log)
+    db.commit()
+
+
+def get_notification_logs(db: Session, user_id: int, limit: int = 20) -> list:
+    """获取用户最近的发送记录"""
+    from app.models import NotificationLog
+    return (
+        db.query(NotificationLog)
+        .filter(NotificationLog.user_id == user_id)
+        .order_by(NotificationLog.created_at.desc())
+        .limit(limit)
+        .all()
+    )

@@ -3,114 +3,165 @@
 {% block title %}生日列表{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-        <h2 style="margin-bottom: 0;">
-            <span style="opacity: 0.8;">📅</span> 我的生日簿
-        </h2>
-        <a href="/birthdays/add" class="btn btn-primary">
-            <span>+</span> 添加新朋友
-        </a>
-    </div>
+<!-- Page Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 fade-in-up">
+    <h1 class="font-['Cormorant_Garamond',serif] text-3xl font-semibold text-[#8B4557] dark:text-gray-100">
+        📖 我的生日簿
+    </h1>
+    <a href="/birthdays/add" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#FF6B6B] to-[#FFA07A] hover:shadow-lg hover:shadow-[#FF6B6B]/30 hover:-translate-y-0.5 transition-all btn-ripple self-start">
+        <span>+</span> 添加新朋友
+    </a>
 </div>
 
 {% if birthdays %}
-<div class="card" style="padding: 0; overflow: hidden;">
-    <table>
-        <thead>
-            <tr>
-                <th>👤 姓名</th>
-                <th>🎂 生日</th>
-                <th>📆 类型</th>
-                <th>📧 提醒邮箱</th>
-                <th>🎁 礼物想法</th>
-                <th>⚡ 操作</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for b in birthdays %}
-            <tr>
-                <td>
-                    <strong style="color: var(--plum);">{{ b.name }}</strong>
-                </td>
-                <td>
-                    <span style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem;">
-                        {{ b.birth_date }}
-                    </span>
-                </td>
-                <td>
-                    {% if b.is_lunar %}
-                    <span class="badge badge-lunar">🌙 农历</span>
-                    {% else %}
-                    <span class="badge badge-solar">☀️ 公历</span>
-                    {% endif %}
-                </td>
-                <td style="color: var(--text-muted); font-size: 0.9rem;">
-                    {{ b.email }}
-                </td>
-                <td>
-                    {% if b.gift_idea %}
-                    <span style="background: linear-gradient(135deg, #FFE8E8 0%, #FFF9F5 100%); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">
-                        {{ b.gift_idea[:30] }}{% if b.gift_idea|length > 30 %}...{% endif %}
-                    </span>
-                    {% else %}
-                    <span style="color: var(--text-muted); font-style: italic; font-size: 0.85rem;">
-                        暂无想法 💭
-                    </span>
-                    {% endif %}
-                </td>
-                <td>
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <a href="/birthdays/{{ b.id }}/edit" class="btn btn-secondary btn-sm">编辑</a>
-                        <a href="/birthdays/{{ b.id }}/reminders" class="btn btn-primary btn-sm">提醒</a>
-                        <form action="/birthdays/{{ b.id }}/delete" method="post" style="display: inline;">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定删除这个生日吗？')">
-                                删除
-                            </button>
-                        </form>
+<!-- Search Bar -->
+<div class="mb-5 fade-in-up" style="animation-delay: 0.05s" x-data="{ search: '' }">
+    <div class="relative max-w-md">
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+        <input type="text" x-model="search" placeholder="搜索姓名..." class="w-full pl-10 pr-4 py-3 rounded-full border border-[#FF6B6B]/20 dark:border-gray-600 bg-white dark:bg-[#2D2D3F] text-gray-800 dark:text-gray-100 placeholder-gray-400 text-sm focus:outline-none focus:border-[#FF6B6B] input-glow transition-all">
+    </div>
+
+    <!-- Desktop Table -->
+    <div class="hidden md:block mt-5">
+        <div class="bg-white dark:bg-[#2D2D3F] rounded-2xl overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="table-gradient">
+                        <tr>
+                            <th class="px-5 py-3.5 text-left text-xs font-semibold text-[#8B4557] dark:text-[#FFB6C1] uppercase tracking-wider">👤 姓名</th>
+                            <th class="px-5 py-3.5 text-left text-xs font-semibold text-[#8B4557] dark:text-[#FFB6C1] uppercase tracking-wider">🎂 生日</th>
+                            <th class="px-5 py-3.5 text-left text-xs font-semibold text-[#8B4557] dark:text-[#FFB6C1] uppercase tracking-wider">📆 类型</th>
+                            <th class="px-5 py-3.5 text-left text-xs font-semibold text-[#8B4557] dark:text-[#FFB6C1] uppercase tracking-wider">📧 邮箱</th>
+                            <th class="px-5 py-3.5 text-left text-xs font-semibold text-[#8B4557] dark:text-[#FFB6C1] uppercase tracking-wider">🎁 礼物想法</th>
+                            <th class="px-5 py-3.5 text-left text-xs font-semibold text-[#8B4557] dark:text-[#FFB6C1] uppercase tracking-wider">⚡ 操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#FF6B6B]/10 dark:divide-gray-700">
+                        {% for b in birthdays %}
+                        <tr x-show="!search || '{{ b.name }}'.toLowerCase().includes(search.toLowerCase())" class="hover:bg-[#FFE8E8]/50 dark:hover:bg-[#FF6B6B]/5 transition-colors">
+                            <td class="px-5 py-4 whitespace-nowrap">
+                                <span class="font-semibold text-[#8B4557] dark:text-gray-100">{{ b.name }}</span>
+                            </td>
+                            <td class="px-5 py-4 whitespace-nowrap">
+                                <span class="font-['Cormorant_Garamond',serif] text-base text-gray-700 dark:text-gray-300">{{ b.birth_date }}</span>
+                            </td>
+                            <td class="px-5 py-4 whitespace-nowrap">
+                                {% if b.is_lunar %}
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400">
+                                    🌙 农历
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+                                    ☀️ 公历
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-5 py-4 whitespace-nowrap text-sm text-gray-400 dark:text-gray-500">
+                                {{ b.email }}
+                            </td>
+                            <td class="px-5 py-4 max-w-[200px]">
+                                {% if b.gift_idea %}
+                                <span class="inline-block bg-gradient-to-r from-[#FFE8E8] to-[#FFF9F5] dark:from-[#FF6B6B]/10 dark:to-[#FFA07A]/10 px-3 py-1 rounded-full text-xs text-gray-600 dark:text-gray-300 truncate max-w-full">
+                                    {{ b.gift_idea[:30] }}{% if b.gift_idea|length > 30 %}...{% endif %}
+                                </span>
+                                {% else %}
+                                <span class="text-xs text-gray-400 dark:text-gray-500 italic">暂无想法 💭</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-5 py-4 whitespace-nowrap">
+                                <div class="flex items-center gap-2">
+                                    <a href="/birthdays/{{ b.id }}/edit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#FF6B6B] border border-[#FF6B6B]/30 hover:bg-[#FFE8E8] dark:hover:bg-[#FF6B6B]/10 transition-all">
+                                        编辑
+                                    </a>
+                                    <a href="/birthdays/{{ b.id }}/reminders" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-[#FF6B6B] to-[#FFA07A] hover:shadow-md hover:shadow-[#FF6B6B]/30 transition-all">
+                                        提醒
+                                    </a>
+                                    <button onclick="window.confirmModal.show({
+                                        title: '删除确认',
+                                        message: '确定要删除「{{ b.name }}」的生日记录吗？此操作不可撤销。',
+                                        icon: '🗑️',
+                                        confirmText: '删除',
+                                        confirmClass: 'px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-red-500 to-red-400 hover:shadow-lg hover:shadow-red-500/30 transition-all',
+                                    }).then(result => { if (result) { document.getElementById('delete-form-{{ b.id }}').submit(); } })"
+                                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-500 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">
+                                        删除
+                                    </button>
+                                    <form id="delete-form-{{ b.id }}" action="/birthdays/{{ b.id }}/delete" method="post" class="hidden"></form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Card List -->
+    <div class="md:hidden mt-4 space-y-3">
+        {% for b in birthdays %}
+        <div x-show="!search || '{{ b.name }}'.toLowerCase().includes(search.toLowerCase())" class="bg-white dark:bg-[#2D2D3F] rounded-xl p-4 shadow-sm card-hover">
+            <div class="flex items-start justify-between mb-2">
+                <div>
+                    <span class="font-semibold text-[#8B4557] dark:text-gray-100">{{ b.name }}</span>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="font-['Cormorant_Garamond',serif] text-sm text-gray-500 dark:text-gray-400">{{ b.birth_date }}</span>
+                        {% if b.is_lunar %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400">🌙 农历</span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">☀️ 公历</span>
+                        {% endif %}
                     </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                </div>
+            </div>
+            <div class="text-xs text-gray-400 dark:text-gray-500 mb-3">
+                📧 {{ b.email }}
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="/birthdays/{{ b.id }}/edit" class="flex-1 text-center px-3 py-2 rounded-lg text-xs font-semibold text-[#FF6B6B] border border-[#FF6B6B]/30 hover:bg-[#FFE8E8] dark:hover:bg-[#FF6B6B]/10 transition-all">编辑</a>
+                <a href="/birthdays/{{ b.id }}/reminders" class="flex-1 text-center px-3 py-2 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-[#FF6B6B] to-[#FFA07A] transition-all">提醒</a>
+                <button onclick="window.confirmModal.show({
+                    title: '删除确认',
+                    message: '确定要删除「{{ b.name }}」的生日记录吗？',
+                    icon: '🗑️',
+                    confirmText: '删除',
+                    confirmClass: 'px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-red-500 to-red-400 transition-all',
+                }).then(result => { if (result) { document.getElementById('delete-form-{{ b.id }}').submit(); } })"
+                class="flex-1 text-center px-3 py-2 rounded-lg text-xs font-semibold text-red-500 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">删除</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 
-<!-- Statistics Summary -->
-<div class="stats-grid mt-4">
-    <div class="stat-card">
-        <h3>{{ birthdays|length }}</h3>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">已记录生日</p>
+<!-- Stats Footer -->
+<div class="grid grid-cols-3 gap-4 fade-in-up" style="animation-delay: 0.1s">
+    <div class="bg-white dark:bg-[#2D2D3F] rounded-xl p-4 text-center shadow-sm">
+        <div class="font-['Cormorant_Garamond',serif] text-2xl font-bold text-[#FF6B6B]">{{ birthdays|length }}</div>
+        <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">已记录生日</div>
     </div>
-    <div class="stat-card">
-        <h3>{{ birthdays|selectattr('is_lunar')|list|length }}</h3>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">农历生日</p>
+    <div class="bg-white dark:bg-[#2D2D3F] rounded-xl p-4 text-center shadow-sm">
+        <div class="font-['Cormorant_Garamond',serif] text-2xl font-bold text-[#FF6B6B]">{{ birthdays|selectattr('is_lunar')|list|length }}</div>
+        <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">农历生日</div>
     </div>
-    <div class="stat-card">
-        <h3>{{ birthdays|selectattr('gift_idea')|list|length }}</h3>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">有礼物想法</p>
+    <div class="bg-white dark:bg-[#2D2D3F] rounded-xl p-4 text-center shadow-sm">
+        <div class="font-['Cormorant_Garamond',serif] text-2xl font-bold text-[#FF6B6B]">{{ birthdays|selectattr('gift_idea')|list|length }}</div>
+        <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">有礼物想法</div>
     </div>
 </div>
 
 {% else %}
-<div class="card">
-    <div class="empty-state">
-        <h3 style="margin-bottom: 1rem; color: var(--text-muted);">
-            还没有记录任何生日
-        </h3>
-        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
-            开始记录朋友和家人的生日，再也不会错过重要的日子啦！
-        </p>
-        <a href="/birthdays/add" class="btn btn-primary">
-            🎂 添加第一个生日
-        </a>
-    </div>
+<!-- Empty State -->
+<div class="bg-white dark:bg-[#2D2D3F] rounded-2xl p-8 sm:p-12 shadow-sm fade-in-up">
+    {% with icon='🎂', message='还没有记录任何生日', description='开始记录朋友和家人的生日，再也不会错过重要的日子啦！', action_url='/birthdays/add', action_text='添加第一个生日', action_icon='🎂' %}
+        {% include "components/empty_state.html" %}
+    {% endwith %}
 </div>
 
-<!-- Decorative Card -->
-<div class="card" style="text-align: center; background: linear-gradient(135deg, #FFE8E8 0%, #FFF9F5 100%); border: 2px dashed var(--coral);">
-    <h3 style="color: var(--coral); margin-bottom: 1rem;">💡 小提示</h3>
-    <p style="color: var(--text-muted); line-height: 1.8;">
+<!-- Tips Card -->
+<div class="mt-6 p-6 rounded-2xl text-center bg-gradient-to-r from-[#FFE8E8] to-[#FFF9F5] dark:from-[#FF6B6B]/5 dark:to-[#FFA07A]/5 border-2 border-dashed border-[#FF6B6B]/30 dark:border-[#FF6B6B]/20 fade-in-up" style="animation-delay: 0.1s">
+    <h3 class="font-['Cormorant_Garamond',serif] text-lg font-semibold text-[#FF6B6B] mb-2">💡 小提示</h3>
+    <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
         支持记录农历生日哦！农历生日会在每个农历日期到来时提醒您。<br>
         还可以设置提前提醒天数，再也不会手忙脚乱啦～
     </p>
