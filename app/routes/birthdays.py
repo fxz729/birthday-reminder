@@ -59,7 +59,7 @@ async def create_birthday(
         birthday_data = BirthdayCreate(
             name=form_data["name"],
             birth_date=birth_date,
-            is_lunar=form_data.get("is_lunar") == "on",
+            is_lunar=form_data.get("is_lunar") == "true",
             email=form_data["email"],
             gift_idea=form_data.get("gift_idea") or None,
             notes=form_data.get("notes") or None,
@@ -114,7 +114,7 @@ async def update_birthday(
         birthday_data = BirthdayUpdate(
             name=form_data["name"],
             birth_date=birth_date,
-            is_lunar=form_data.get("is_lunar") == "on",
+            is_lunar=form_data.get("is_lunar") == "true",
             email=form_data["email"],
             gift_idea=form_data.get("gift_idea") or None,
             notes=form_data.get("notes") or None,
